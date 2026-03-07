@@ -22,23 +22,45 @@
       />
       <button
         onclick="lg()"
-        class="w-full bg-blue-600 p-4 rounded font-black uppercase shadow-lg"
+        class="w-full bg-blue-600 p-4 rounded font-black uppercase shadow-lg hover:bg-blue-700 transition-all"
       >
         Unlock System
       </button>
+      <p class="mt-4 text-xs text-slate-500">Hint: Default password is 123</p>
     </div>
+
     <script>
-      async function lg() {
-        const pass = document.getElementById("p").value;
-        const res = await fetch("/api/data");
-        const db = await res.json();
-        if (pass === db.profile.password) {
+      // Fungsi Login untuk GitHub Pages (Client-side)
+      function lg() {
+        const passInput = document.getElementById("p").value;
+
+        // 1. Ambil data dari LocalStorage, jika belum ada gunakan default
+        let db = JSON.parse(localStorage.getItem("hansfx_db"));
+
+        if (!db) {
+          // Data default jika user baru pertama kali buka web
+          db = {
+            profile: { name: "HansFX", password: "123" },
+            trades: [],
+            logs: [],
+          };
+          localStorage.setItem("hansfx_db", JSON.stringify(db));
+        }
+
+        // 2. Cek Password
+        if (passInput === db.profile.password) {
           sessionStorage.setItem("isLoggedIn", "true");
+          // Gunakan index.html sesuai struktur folder root kamu
           window.location.href = "index.html";
         } else {
-          alert("Password Salah!");
+          alert("Password Salah! Gunakan 123 untuk pertama kali.");
         }
       }
+
+      // Memungkinkan tekan Enter untuk login
+      document.getElementById("p").addEventListener("keypress", function (e) {
+        if (e.key === "Enter") lg();
+      });
     </script>
   </body>
 </html>
