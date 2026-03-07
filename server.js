@@ -41,7 +41,7 @@ const saveData = (data) => {
 
 // --- API ROUTES ---
 
-app.get('/api/data', (req, res) => {
+app.get('journal.json', (req, res) => {
     res.json(getData());
 });
 

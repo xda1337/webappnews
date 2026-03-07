@@ -164,7 +164,7 @@
   // Memuat Statistik secara dinamis agar halaman tidak kosong
   window.loadProfileStats = async () => {
     try {
-      const res = await fetch("/api/data");
+      const res = await fetch("journal.json");
       const db = await res.json();
 
       const total = db.trades.length;
