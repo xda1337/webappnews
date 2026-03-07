@@ -3,9 +3,12 @@ const fs = require('fs');
 const path = require('path');
 const app = express();
 
+// Middleware
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static('public')); // Menampilkan file HTML di folder public
 
+// Path file database JSON
+// Menggunakan path.join agar kompatibel dengan sistem Linux di Render
 const DATA_FILE = path.join(__dirname, 'journal.json');
 
 // Helper: Ambil data
@@ -22,13 +25,18 @@ const getData = () => {
         }
         return JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
     } catch (error) {
+        console.error("Error reading data:", error);
         return { profile: { name: "HansFX", password: "123" }, trades: [], logs: [] };
     }
 };
 
 // Helper: Simpan data
 const saveData = (data) => {
-    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    try {
+        fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
+    } catch (error) {
+        console.error("Error saving data:", error);
+    }
 };
 
 // --- API ROUTES ---
@@ -107,22 +115,23 @@ app.delete('/api/balance/:id', (req, res) => {
     }
 });
 
-// 5. Update Password (FIXED: Route & Body match Frontend)
+// 5. Update Password
 app.post('/api/update-password', (req, res) => {
     const db = getData();
-    const newPassword = req.body.password; // Mengambil 'password' sesuai kiriman profil.html
+    const newPassword = req.body.password;
 
     if (newPassword) {
         db.profile.password = newPassword;
         saveData(db);
-        console.log("Password updated in journal.json");
         res.json({ success: true, message: "Password updated" });
     } else {
         res.status(400).json({ success: false, message: "Missing password field" });
     }
 });
 
-const PORT = 3000;
+// --- SERVER LISTEN ---
+// PENTING: process.env.PORT digunakan agar bisa jalan di hosting (Render/Heroku/dll)
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`SERVER RUNNING: http://localhost:${PORT}`);
+    console.log(`SERVER RUNNING ON PORT: ${PORT}`);
 });
