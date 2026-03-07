@@ -26,39 +26,35 @@
       >
         Unlock System
       </button>
-      <p class="mt-4 text-xs text-slate-500">Hint: Default password is 123</p>
     </div>
 
     <script>
-      // Fungsi Login untuk GitHub Pages (Client-side)
-      function lg() {
+      async function lg() {
         const passInput = document.getElementById("p").value;
 
-        // 1. Ambil data dari LocalStorage, jika belum ada gunakan default
-        let db = JSON.parse(localStorage.getItem("hansfx_db"));
+        try {
+          // Membaca file journal.json yang ada di root repository
+          const res = await fetch("journal.json");
 
-        if (!db) {
-          // Data default jika user baru pertama kali buka web
-          db = {
-            profile: { name: "HansFX", password: "testing" },
-            trades: [],
-            logs: [],
-          };
-          localStorage.setItem("hansfx_db", JSON.stringify(db));
-        }
+          if (!res.ok) throw new Error("Gagal mengambil data");
 
-        // 2. Cek Password
-        if (passInput === db.profile.password) {
-          sessionStorage.setItem("isLoggedIn", "true");
-          // Gunakan index.html sesuai struktur folder root kamu
-          window.location.href = "index.html";
-        } else {
-          alert("Password Salah! Gunakan 123 untuk pertama kali.");
+          const db = await res.json();
+
+          // Mengambil password dari struktur: profile -> password
+          if (passInput === db.profile.password) {
+            sessionStorage.setItem("isLoggedIn", "true");
+            window.location.href = "index.html";
+          } else {
+            alert("Password Salah!");
+          }
+        } catch (error) {
+          console.error(error);
+          alert("Error: File journal.json tidak ditemukan atau rusak.");
         }
       }
 
-      // Memungkinkan tekan Enter untuk login
-      document.getElementById("p").addEventListener("keypress", function (e) {
+      // Fitur tambahan: Tekan Enter untuk login
+      document.getElementById("p").addEventListener("keypress", (e) => {
         if (e.key === "Enter") lg();
       });
     </script>
