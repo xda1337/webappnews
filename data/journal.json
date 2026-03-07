@@ -1,0 +1,99 @@
+{
+  "profile": {
+    "name": "HansFX",
+    "balance": -90445
+  },
+  "trades": [
+    {
+      "id": 1772733061775,
+      "date": "2026-03-05T17:51:01.775Z",
+      "pair": "XAUUSD",
+      "type": "BUY",
+      "lot": "1",
+      "entry": "5000",
+      "sl": "4900",
+      "tp": "5100",
+      "swap": "0",
+      "komisi": "10",
+      "close": "5050"
+    },
+    {
+      "id": 1772733179829,
+      "date": "2026-03-05T17:52:59.829Z",
+      "pair": "XAUUSD",
+      "type": "BUY",
+      "lot": "0.01",
+      "entry": "5000",
+      "sl": "4900",
+      "tp": "5100",
+      "swap": "0",
+      "komisi": "0.10",
+      "close": "5050"
+    },
+    {
+      "id": 1772733406262,
+      "date": "2026-03-05T17:56:46.262Z",
+      "pair": "XAUUSD",
+      "type": "SELL",
+      "lot": "10",
+      "entry": "5000",
+      "sl": "5100",
+      "tp": "4900",
+      "swap": "0",
+      "komisi": "100",
+      "close": "5100"
+    }
+  ],
+  "logs": [
+    {
+      "type": "deposit",
+      "amount": 10000,
+      "date": "2026-03-05T17:39:17.499Z"
+    },
+    {
+      "type": "deposit",
+      "amount": 555,
+      "date": "2026-03-05T17:40:24.082Z"
+    },
+    {
+      "type": "deposit",
+      "amount": 5000,
+      "date": "2026-03-05T17:42:23.367Z"
+    },
+    {
+      "type": "withdraw",
+      "amount": 5000,
+      "date": "2026-03-05T17:50:15.437Z"
+    },
+    {
+      "type": "withdraw",
+      "amount": 1000,
+      "date": "2026-03-05T17:57:00.644Z"
+    },
+    {
+      "type": "withdraw",
+      "amount": 1000,
+      "date": "2026-03-05T17:57:06.005Z"
+    },
+    {
+      "type": "deposit",
+      "amount": 10000,
+      "date": "2026-03-05T18:19:18.038Z"
+    },
+    {
+      "type": "deposit",
+      "amount": 1000,
+      "date": "2026-03-05T18:20:11.601Z"
+    },
+    {
+      "type": "withdraw",
+      "amount": 100000,
+      "date": "2026-03-05T18:20:19.088Z"
+    },
+    {
+      "type": "withdraw",
+      "amount": 10000,
+      "date": "2026-03-05T18:20:31.578Z"
+    }
+  ]
+}

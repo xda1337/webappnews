@@ -1,0 +1,331 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
+<div
+  class="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-6 duration-1000"
+>
+  <div class="flex justify-between items-center px-2">
+    <div>
+      <h2
+        class="text-4xl font-black uppercase tracking-tighter text-white italic"
+      >
+        CASH<span class="text-blue-500 text-stroke-sm">FLOW</span>
+      </h2>
+      <div class="flex items-center gap-2">
+        <span class="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+        <p
+          class="text-[9px] text-slate-500 font-bold uppercase tracking-[0.3em]"
+        >
+          Institutional Grade Security
+        </p>
+      </div>
+    </div>
+    <div
+      class="h-12 w-12 rounded-2xl bg-slate-900 border border-slate-800 flex items-center justify-center shadow-lg shadow-blue-500/10"
+    >
+      <i class="fa-solid fa-vault text-blue-500"></i>
+    </div>
+  </div>
+
+  <div class="relative group mx-1">
+    <div
+      class="absolute -inset-1 bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400 rounded-[2.5rem] blur-xl opacity-20 group-hover:opacity-40 transition duration-1000"
+    ></div>
+    <div
+      class="relative overflow-hidden bg-slate-950 rounded-[2.2rem] p-8 border border-white/5 shadow-2xl"
+    >
+      <div
+        class="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-[60px] -mr-10 -mt-10"
+      ></div>
+      <div
+        class="absolute bottom-0 left-0 w-24 h-24 bg-indigo-600/10 rounded-full blur-[40px] -ml-10 -mb-10"
+      ></div>
+
+      <div class="relative z-10 space-y-10">
+        <div class="flex justify-between items-start">
+          <div>
+            <p
+              class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-2"
+            >
+              Portfolio Valuation
+            </p>
+            <h3
+              id="wallet-balance"
+              class="text-5xl font-mono font-black text-white tracking-tighter tabular-nums"
+            >
+              $0.00
+            </h3>
+          </div>
+          <div class="flex flex-col items-end">
+            <span
+              class="px-3 py-1 bg-green-500/10 border border-green-500/20 rounded-full text-[9px] font-black text-green-400 uppercase tracking-widest"
+            >
+              Live <i class="fa-solid fa-circle text-[6px] ml-1"></i>
+            </span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+          <div class="space-y-1">
+            <p
+              class="text-[9px] font-bold text-slate-500 uppercase tracking-widest"
+            >
+              Equity Margin
+            </p>
+            <p
+              id="available-margin"
+              class="text-lg font-mono font-bold text-slate-200"
+            >
+              $0.00
+            </p>
+          </div>
+          <div class="space-y-1 text-right">
+            <p
+              class="text-[9px] font-bold text-slate-500 uppercase tracking-widest"
+            >
+              Account Tier
+            </p>
+            <p
+              class="text-[11px] font-black text-blue-400 uppercase italic tracking-tighter"
+            >
+              Diamond Protocol
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="bg-slate-900/40 rounded-[2.5rem] border border-slate-800/60 p-8 backdrop-blur-2xl shadow-2xl mx-1"
+  >
+    <div class="flex flex-col items-center mb-8">
+      <span
+        class="text-[10px] font-black text-slate-500 uppercase tracking-[0.5em] mb-6"
+        >Authorize Transaction</span
+      >
+      <div class="relative w-full">
+        <div
+          class="absolute inset-y-0 left-6 flex items-center pointer-events-none"
+        >
+          <span class="text-2xl font-black text-blue-500/50">$</span>
+        </div>
+        <input
+          type="number"
+          id="amount-input"
+          placeholder="0.00"
+          class="w-full bg-slate-950 border-2 border-slate-800/50 rounded-[1.5rem] py-7 pl-14 pr-8 text-4xl font-mono font-black text-white focus:outline-none focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 transition-all placeholder:text-slate-800"
+        />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-4">
+      <button
+        id="btn-deposit"
+        class="group relative overflow-hidden bg-white hover:bg-blue-50 text-slate-950 font-black py-6 rounded-[1.2rem] uppercase text-[12px] tracking-widest transition-all active:scale-95 shadow-xl"
+      >
+        <span class="relative z-10"
+          ><i class="fa-solid fa-plus-circle mr-2"></i>Deposit</span
+        >
+      </button>
+      <button
+        id="btn-withdraw"
+        class="group relative overflow-hidden bg-slate-800 hover:bg-red-600 text-white font-black py-6 rounded-[1.2rem] uppercase text-[12px] tracking-widest transition-all active:scale-95 shadow-xl"
+      >
+        <span class="relative z-10"
+          ><i class="fa-solid fa-minus-circle mr-2"></i>Withdraw</span
+        >
+      </button>
+    </div>
+  </div>
+
+  <div class="space-y-5">
+    <div class="flex justify-between items-center px-6">
+      <h4
+        class="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em]"
+      >
+        Internal Ledger
+      </h4>
+      <div class="h-[1px] flex-grow mx-4 bg-slate-800"></div>
+      <i class="fa-solid fa-list-ul text-slate-600 text-[10px]"></i>
+    </div>
+
+    <div id="recent-logs" class="space-y-3 px-1">
+      <div
+        class="animate-pulse bg-slate-900/50 h-24 rounded-[1.8rem] border border-slate-800/50"
+      ></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    let currentBalance = 0;
+
+    // SweetAlert Config
+    const StyledAlert = {
+      background: "#0a0f1d",
+      color: "#fff",
+      confirmButtonColor: "#2563eb",
+      cancelButtonColor: "#1e293b",
+      customClass: {
+        popup: "rounded-[2rem] border border-slate-800 shadow-2xl",
+        title: "text-2xl font-black uppercase italic",
+        htmlContainer: "text-slate-400 font-medium",
+      },
+    };
+
+    const Toast = Swal.mixin({
+      toast: true,
+      position: "top",
+      showConfirmButton: false,
+      timer: 2500,
+      timerProgressBar: true,
+      background: "#0a0f1d",
+      color: "#fff",
+    });
+
+    // 1. Fungsi Utama Ambil Data
+    window.loadWalletData = async () => {
+      try {
+        const res = await fetch("/api/data");
+        const db = await res.json();
+
+        let tDepo = 0,
+          tWD = 0,
+          tGross = 0,
+          tSwap = 0,
+          tKomisi = 0;
+
+        db.logs.forEach((l) => {
+          if (l.type.toLowerCase() === "deposit") tDepo += parseFloat(l.amount);
+          else tWD += parseFloat(l.amount);
+        });
+
+        db.trades.forEach((t) => {
+          const diff = t.type === "BUY" ? t.close - t.entry : t.entry - t.close;
+          tGross += diff * (parseFloat(t.lot) || 0) * 100;
+          tSwap += parseFloat(t.swap) || 0;
+          tKomisi += parseFloat(t.komisi) || 0;
+        });
+
+        currentBalance = tDepo + tGross + tSwap - tKomisi - tWD;
+        const formattedBalance = currentBalance.toLocaleString("en-US", {
+          minimumFractionDigits: 2,
+        });
+
+        document.getElementById("wallet-balance").innerText =
+          `$${formattedBalance}`;
+        document.getElementById("available-margin").innerText =
+          `$${formattedBalance}`;
+
+        renderLogs(db.logs);
+      } catch (e) {
+        console.error("Critical Error loading wallet:", e);
+      }
+    };
+
+    // 2. Fungsi Render Riwayat
+    function renderLogs(logs) {
+      const container = document.getElementById("recent-logs");
+      container.innerHTML = "";
+
+      [...logs]
+        .reverse()
+        .slice(0, 5)
+        .forEach((log) => {
+          const isDepo = log.type.toLowerCase() === "deposit";
+          container.innerHTML += `
+                <div class="group bg-slate-900/40 border border-slate-800/50 p-6 rounded-[1.8rem] flex justify-between items-center transition-all hover:bg-slate-800 hover:scale-[1.02]">
+                    <div class="flex items-center gap-5">
+                        <div class="w-14 h-14 rounded-2xl ${isDepo ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"} flex items-center justify-center text-xl shadow-inner">
+                            <i class="fa-solid ${isDepo ? "fa-arrow-down-long" : "fa-arrow-up-long"}"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black uppercase text-white tracking-widest">${log.type}</p>
+                            <p class="text-[9px] text-slate-500 font-bold mt-1 uppercase">${new Date(log.date).toLocaleString()}</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-mono font-black ${isDepo ? "text-green-400" : "text-red-400"}">${isDepo ? "+" : "-"}$${parseFloat(log.amount).toFixed(2)}</p>
+                        <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
+                    </div>
+                </div>`;
+        });
+    }
+
+    // 3. Fungsi Eksekusi Transaksi (POST)
+    async function executeTransaction(type) {
+      const input = document.getElementById("amount-input");
+      const amount = parseFloat(input.value);
+
+      if (!amount || amount <= 0) {
+        return Toast.fire({ icon: "error", title: "Invalid amount entered" });
+      }
+
+      // LOGIKA WITHDRAW: Cek kecukupan saldo
+      if (type === "withdraw" && amount > currentBalance) {
+        return Swal.fire({
+          ...StyledAlert,
+          icon: "error",
+          title: "Insufficient Funds",
+          text: "Your current balance is lower than the withdrawal request.",
+        });
+      }
+
+      // KONFIRMASI PRO
+      const confirmation = await Swal.fire({
+        ...StyledAlert,
+        title: `Confirm ${type}`,
+        text: `Authorize payment of $${amount.toLocaleString()}?`,
+        showCancelButton: true,
+        confirmButtonText: "Authorize Now",
+        icon: "shield-check",
+      });
+
+      if (!confirmation.isConfirmed) return;
+
+      try {
+        Swal.showLoading();
+        const response = await fetch("/api/balance", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: type.toUpperCase(),
+            amount: amount,
+            date: new Date().toISOString(), // Memastikan tanggal tercatat tepat
+          }),
+        });
+
+        if (response.ok) {
+          input.value = "";
+          await Swal.fire({
+            ...StyledAlert,
+            icon: "success",
+            title: "Authorized",
+            text: "Transaction has been broadcasted to the network.",
+            timer: 2000,
+          });
+          // REFRESH SEMUA DATA
+          window.loadWalletData();
+        } else {
+          throw new Error("Server rejected transaction");
+        }
+      } catch (err) {
+        Toast.fire({ icon: "error", title: "Network Error" });
+      }
+    }
+
+    // 4. Link Event Listeners (WAJIB)
+    document.getElementById("btn-deposit").onclick = () =>
+      executeTransaction("deposit");
+    document.getElementById("btn-withdraw").onclick = () =>
+      executeTransaction("withdraw");
+
+    // AUTO-INIT
+    window.loadWalletData();
+  })();
+</script>

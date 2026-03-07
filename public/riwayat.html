@@ -1,0 +1,416 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
+<div
+  class="space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-6 duration-1000"
+>
+  <div
+    class="flex flex-col md:flex-row md:items-end justify-between gap-6 px-2"
+  >
+    <div>
+      <h2
+        class="text-3xl font-black uppercase tracking-tighter text-white italic"
+      >
+        AUDIT <span class="text-blue-500">TRAIL</span>
+      </h2>
+      <div class="flex items-center gap-2">
+        <span class="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
+        <p
+          class="text-[9px] text-slate-500 font-bold uppercase tracking-[0.3em]"
+        >
+          Institutional History Ledger
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="flex flex-wrap items-center gap-3 bg-slate-900/80 p-2.5 rounded-[1.5rem] border border-white/5 backdrop-blur-xl shadow-2xl"
+    >
+      <select
+        id="rangeFilter"
+        onchange="window.toggleCustomDate(this.value)"
+        class="bg-slate-950 text-[10px] font-black uppercase px-4 py-3 rounded-xl border border-slate-800 text-blue-400 outline-none focus:border-blue-500 transition-all appearance-none cursor-pointer"
+      >
+        <option value="all">All Records</option>
+        <option value="today">Today</option>
+        <option value="last_week">7 Days</option>
+        <option value="custom">Range</option>
+      </select>
+
+      <div id="customDateWrapper" class="hidden flex gap-2 items-center px-2">
+        <input
+          type="date"
+          id="startDate"
+          class="bg-slate-950 text-[10px] p-2 rounded-lg border border-slate-800 text-white outline-none"
+        />
+        <span class="text-slate-600 text-[10px] font-black">/</span>
+        <input
+          type="date"
+          id="endDate"
+          class="bg-slate-950 text-[10px] p-2 rounded-lg border border-slate-800 text-white outline-none"
+        />
+      </div>
+
+      <button
+        onclick="
+          window.currentPage = 1;
+          window.prosesFilterRiwayat();
+        "
+        class="bg-blue-600 hover:bg-blue-500 px-6 py-3 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg shadow-blue-900/40 text-white active:scale-95"
+      >
+        Execute Filter
+      </button>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mx-1">
+    <div
+      class="relative overflow-hidden bg-slate-900 border border-white/5 p-6 rounded-[2rem] group transition-all hover:border-blue-500/30"
+    >
+      <p
+        class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2"
+      >
+        Net Profit/Loss
+      </p>
+      <h3 id="sum-profit" class="text-2xl font-mono font-black tabular-nums">
+        $0.00
+      </h3>
+      <div
+        class="absolute -right-2 -bottom-2 opacity-[0.03] text-5xl group-hover:scale-110 transition-transform duration-700"
+      >
+        <i class="fa fa-chart-line"></i>
+      </div>
+    </div>
+
+    <div
+      class="bg-slate-900 border border-white/5 p-6 rounded-[2rem] hover:border-blue-500/30 transition-all"
+    >
+      <p
+        class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2"
+      >
+        Total Inbound
+      </p>
+      <h3
+        id="sum-depo"
+        class="text-2xl font-mono font-black text-blue-400 tabular-nums"
+      >
+        $0.00
+      </h3>
+    </div>
+
+    <div
+      class="bg-slate-900 border border-white/5 p-6 rounded-[2rem] hover:border-red-500/30 transition-all"
+    >
+      <p
+        class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2"
+      >
+        Total Outbound
+      </p>
+      <h3
+        id="sum-wd"
+        class="text-2xl font-mono font-black text-orange-500 tabular-nums"
+      >
+        $0.00
+      </h3>
+    </div>
+
+    <div
+      class="relative overflow-hidden bg-blue-600 p-6 rounded-[2rem] shadow-xl shadow-blue-900/30 group"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"
+      ></div>
+      <p
+        class="relative z-10 text-[9px] font-black text-blue-100 uppercase tracking-widest mb-2"
+      >
+        Final Equity
+      </p>
+      <h3
+        id="sum-balance"
+        class="relative z-10 text-2xl font-mono font-black text-white tabular-nums"
+      >
+        $0.00
+      </h3>
+    </div>
+  </div>
+
+  <div
+    class="bg-slate-950/50 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl backdrop-blur-2xl mx-1"
+  >
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr
+            class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-black tracking-[0.2em]"
+          >
+            <th class="p-6 border-b border-white/5">Asset & Timestamp</th>
+            <th class="p-6 border-b border-white/5 text-center">Execution</th>
+            <th class="p-6 border-b border-white/5 text-right">Settlement</th>
+            <th class="p-6 border-b border-white/5 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody
+          id="history-body"
+          class="divide-y divide-white/5 font-mono text-slate-300"
+        ></tbody>
+      </table>
+    </div>
+
+    <div
+      class="bg-slate-900/80 p-6 flex justify-between items-center border-t border-white/5"
+    >
+      <button
+        onclick="window.changePage(-1)"
+        id="btnPrev"
+        class="flex items-center gap-3 text-[10px] font-black uppercase px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl disabled:opacity-20 transition-all text-white active:scale-90"
+      >
+        <i class="fa fa-chevron-left text-[8px]"></i> Prev
+      </button>
+
+      <span
+        id="pageInfo"
+        class="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/40 px-5 py-2.5 rounded-full border border-white/5"
+      >
+        Page 1 / 1
+      </span>
+
+      <button
+        onclick="window.changePage(1)"
+        id="btnNext"
+        class="flex items-center gap-3 text-[10px] font-black uppercase px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl disabled:opacity-20 transition-all text-white active:scale-90"
+      >
+        Next <i class="fa fa-chevron-right text-[8px]"></i>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    window.currentPage = 1;
+    const rowsPerPage = 7;
+    let filteredData = [];
+
+    // Alert Style Global
+    const AlertStyle = {
+      background: "#0a0f1d",
+      color: "#fff",
+      confirmButtonColor: "#ef4444",
+      cancelButtonColor: "#1e293b",
+      customClass: { popup: "rounded-[2rem] border border-slate-800" },
+    };
+
+    window.toggleCustomDate = (v) => {
+      document
+        .getElementById("customDateWrapper")
+        .classList.toggle("hidden", v !== "custom");
+    };
+
+    window.changePage = (dir) => {
+      window.currentPage += dir;
+      window.renderTable();
+    };
+
+    window.prosesFilterRiwayat = async function () {
+      try {
+        const res = await fetch("/api/data");
+        const db = await res.json();
+        const range = document.getElementById("rangeFilter").value;
+
+        let tGross = 0,
+          tDepo = 0,
+          tWD = 0,
+          tSwap = 0,
+          tKomisi = 0;
+
+        const combined = [
+          ...db.trades.map((t) => ({ ...t, source: "trade" })),
+          ...db.logs.map((l) => ({ ...l, source: "balance" })),
+        ].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        const isMatch = (dateStr) => {
+          const tTime = new Date(dateStr).getTime();
+          const now = new Date();
+          if (range === "all") return true;
+          if (range === "today") return tTime >= now.setHours(0, 0, 0, 0);
+          if (range === "last_week")
+            return tTime >= Date.now() - 7 * 24 * 60 * 60 * 1000;
+          if (range === "custom") {
+            const s = new Date(
+              document.getElementById("startDate").value || 0,
+            ).setHours(0, 0, 0, 0);
+            const e = new Date(
+              document.getElementById("endDate").value || Date.now(),
+            ).setHours(23, 59, 59, 999);
+            return tTime >= s && tTime <= e;
+          }
+          return true;
+        };
+
+        filteredData = combined.filter((item) => {
+          const match = isMatch(item.date);
+          if (match) {
+            if (item.source === "trade") {
+              const diff =
+                item.type === "BUY"
+                  ? item.close - item.entry
+                  : item.entry - item.close;
+              tGross += diff * item.lot * 100;
+              tSwap += parseFloat(item.swap) || 0;
+              tKomisi += parseFloat(item.komisi) || 0;
+            } else {
+              const amt = parseFloat(item.amount) || 0;
+              if (item.type.toLowerCase() === "deposit") tDepo += amt;
+              else tWD += amt;
+            }
+          }
+          return match;
+        });
+
+        const displayProfit = tGross + tSwap - tKomisi;
+        const finalBalance = tDepo + displayProfit - tWD;
+
+        // UI Update Stats
+        document.getElementById("sum-profit").innerText =
+          (displayProfit >= 0 ? "+" : "") +
+          "$" +
+          displayProfit.toLocaleString("en-US", { minimumFractionDigits: 2 });
+        document.getElementById("sum-profit").className =
+          `text-2xl font-mono font-black tabular-nums ${displayProfit >= 0 ? "text-green-400" : "text-red-500"}`;
+
+        document.getElementById("sum-depo").innerText =
+          "$" + tDepo.toLocaleString("en-US", { minimumFractionDigits: 2 });
+        document.getElementById("sum-wd").innerText =
+          "-$" + tWD.toLocaleString("en-US", { minimumFractionDigits: 2 });
+        document.getElementById("sum-balance").innerText =
+          "$" +
+          Math.max(0, finalBalance).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+          });
+
+        window.renderTable();
+      } catch (e) {
+        console.error("Filter Error:", e);
+      }
+    };
+
+    window.renderTable = () => {
+      const body = document.getElementById("history-body");
+      body.innerHTML = "";
+
+      const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
+      if (window.currentPage > totalPages) window.currentPage = totalPages;
+
+      const start = (window.currentPage - 1) * rowsPerPage;
+      const paginatedItems = filteredData.slice(start, start + rowsPerPage);
+
+      if (!paginatedItems.length) {
+        body.innerHTML = `<tr><td colspan="4" class="p-24 text-center"><p class="text-slate-600 font-black uppercase text-[10px] tracking-[0.3em]">No Authorized Transactions Found</p></td></tr>`;
+      } else {
+        paginatedItems.forEach((item) => {
+          const d = new Date(item.date).toLocaleString("id-ID", {
+            day: "2-digit",
+            month: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+          });
+          const isTrade = item.source === "trade";
+
+          if (isTrade) {
+            const diff =
+              item.type === "BUY"
+                ? item.close - item.entry
+                : item.entry - item.close;
+            const net =
+              diff * item.lot * 100 +
+              (parseFloat(item.swap) || 0) -
+              (parseFloat(item.komisi) || 0);
+
+            body.innerHTML += `
+                        <tr class="hover:bg-white/[0.02] transition-colors group">
+                            <td class="p-6">
+                                <p class="text-[9px] text-slate-600 font-black mb-1">${d}</p>
+                                <p class="text-white font-black text-sm uppercase">${item.pair}</p>
+                            </td>
+                            <td class="p-6 text-center">
+                                <span class="px-3 py-1 rounded-md text-[9px] font-black uppercase ${item.type === "BUY" ? "bg-green-500/10 text-green-500 border border-green-500/20" : "bg-red-500/10 text-red-500 border border-red-500/20"}">
+                                    ${item.type} ${item.lot.toFixed(2)}
+                                </span>
+                            </td>
+                            <td class="p-6 text-right font-black text-sm ${net >= 0 ? "text-green-400" : "text-red-500"}">
+                                ${net >= 0 ? "+" : ""}${net.toFixed(2)}
+                            </td>
+                            <td class="p-6 text-center">
+                                <button onclick="window.hapusItem('trades', ${item.id})" class="w-9 h-9 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500 active:scale-90">
+                                    <i class="fa fa-trash-alt text-[11px]"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+          } else {
+            const amt = parseFloat(item.amount) || 0;
+            const isDepo = item.type.toLowerCase() === "deposit";
+            body.innerHTML += `
+                        <tr class="bg-blue-500/[0.03] group">
+                            <td class="p-6">
+                                <p class="text-[9px] text-slate-600 font-black mb-1">${d}</p>
+                                <p class="text-blue-400 font-black text-sm uppercase italic">CASH ${item.type}</p>
+                            </td>
+                            <td class="p-6 text-center text-[9px] text-slate-500 font-black uppercase tracking-widest">Adjustment</td>
+                            <td class="p-6 text-right font-black text-sm ${isDepo ? "text-blue-400" : "text-orange-400"}">
+                                ${isDepo ? "+" : "-"}${amt.toFixed(2)}
+                            </td>
+                            <td class="p-6 text-center">
+                                <button onclick="window.hapusItem('balance', ${item.id})" class="w-9 h-9 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500 active:scale-90">
+                                    <i class="fa fa-trash-alt text-[11px]"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+          }
+        });
+      }
+
+      document.getElementById("pageInfo").innerText =
+        `Page ${window.currentPage} / ${totalPages}`;
+      document.getElementById("btnPrev").disabled = window.currentPage === 1;
+      document.getElementById("btnNext").disabled =
+        window.currentPage === totalPages;
+    };
+
+    window.hapusItem = async function (type, id) {
+      const result = await Swal.fire({
+        ...AlertStyle,
+        title: "Delete Record?",
+        text: "This action cannot be undone!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Confirm Delete",
+      });
+
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(
+            type === "trades" ? `/api/trades/${id}` : `/api/balance/${id}`,
+            { method: "DELETE" },
+          );
+          if (res.ok) {
+            Swal.fire({
+              ...AlertStyle,
+              icon: "success",
+              title: "Deleted",
+              timer: 1500,
+              showConfirmButton: false,
+            });
+            window.prosesFilterRiwayat();
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    };
+
+    window.prosesFilterRiwayat();
+  })();
+</script>

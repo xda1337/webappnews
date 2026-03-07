@@ -1,0 +1,35 @@
+{
+  "profile": {
+    "name": "HansFX",
+    "password": "testing"
+  },
+  "trades": [
+    {
+      "id": 1772841338014,
+      "date": "2026-03-06T23:55:38.016Z",
+      "pair": "BTCUSD",
+      "type": "BUY",
+      "lot": 0.01,
+      "entry": 5000,
+      "sl": 4900,
+      "tp": 5100,
+      "swap": 0,
+      "komisi": 0.1,
+      "close": 5100
+    }
+  ],
+  "logs": [
+    {
+      "id": 1772840992921,
+      "date": "2026-03-06T23:49:52.893Z",
+      "type": "DEPOSIT",
+      "amount": 1000
+    },
+    {
+      "id": 1772841010690,
+      "date": "2026-03-06T23:50:10.684Z",
+      "type": "WITHDRAW",
+      "amount": 500
+    }
+  ]
+}

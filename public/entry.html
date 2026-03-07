@@ -1,0 +1,344 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+
+<div
+  class="max-w-5xl mx-auto space-y-8 pb-32 animate-in fade-in slide-in-from-bottom-6 duration-1000"
+>
+  <div
+    class="flex flex-col md:flex-row md:items-center justify-between gap-6 px-2"
+  >
+    <div>
+      <div class="flex items-center gap-3 mb-1">
+        <div
+          class="h-6 w-1 bg-blue-600 rounded-full shadow-[0_0_10px_rgba(37,99,235,0.5)]"
+        ></div>
+        <h2
+          class="text-3xl font-black uppercase tracking-tighter text-white italic"
+        >
+          EXECUTION <span class="text-blue-500">TERMINAL</span>
+        </h2>
+      </div>
+      <p
+        class="text-[10px] text-slate-500 font-black uppercase tracking-[0.4em] ml-4"
+      >
+        Protocol: Market Order Entry v3.0
+      </p>
+    </div>
+    <div class="hidden md:block">
+      <div
+        class="bg-slate-900/80 px-5 py-3 rounded-2xl border border-white/5 backdrop-blur-md shadow-xl"
+      >
+        <span id="live-clock" class="text-xs font-mono font-bold text-blue-400"
+          >00:00:00 UTC</span
+        >
+      </div>
+    </div>
+  </div>
+
+  <form
+    id="tradeForm"
+    onsubmit="window.saveTrade(event)"
+    class="grid grid-cols-1 lg:grid-cols-12 gap-6"
+  >
+    <div class="lg:col-span-7 space-y-6">
+      <div
+        class="bg-slate-950/40 rounded-[2.5rem] border border-white/5 p-8 backdrop-blur-2xl shadow-2xl relative overflow-hidden group"
+      >
+        <div
+          class="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full blur-[60px] -mr-10 -mt-10 transition-all group-hover:bg-blue-600/10"
+        ></div>
+
+        <div class="relative z-10 space-y-8">
+          <div>
+            <label
+              class="block text-[10px] font-black uppercase text-slate-500 mb-4 tracking-[0.2em]"
+              >Manual Timestamp Override</label
+            >
+            <div class="relative group">
+              <i
+                class="fa fa-clock absolute left-5 top-1/2 -translate-y-1/2 text-slate-600 group-focus-within:text-blue-500 transition-colors"
+              ></i>
+              <input
+                type="datetime-local"
+                id="manualDate"
+                class="w-full bg-slate-900/50 border border-slate-800 rounded-2xl p-5 pl-14 text-sm font-mono text-blue-400 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/5 transition-all cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-6">
+            <div class="space-y-4">
+              <label
+                class="block text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]"
+                >Asset Symbol</label
+              >
+              <input
+                type="text"
+                id="pair"
+                placeholder="XAUUSD"
+                required
+                class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 text-lg font-black uppercase text-white placeholder:text-slate-800 outline-none focus:border-blue-500 transition-all shadow-inner"
+              />
+            </div>
+            <div class="space-y-4">
+              <label
+                class="block text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]"
+                >Volume (Lots)</label
+              >
+              <input
+                type="number"
+                id="lot"
+                step="0.01"
+                placeholder="0.10"
+                required
+                class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 text-lg font-mono font-black text-white outline-none focus:border-blue-500 transition-all shadow-inner"
+              />
+            </div>
+          </div>
+
+          <div class="space-y-4">
+            <label
+              class="block text-[10px] font-black uppercase text-slate-500 tracking-[0.2em]"
+              >Execution Side</label
+            >
+            <div class="grid grid-cols-2 gap-4">
+              <label class="cursor-pointer group">
+                <input
+                  type="radio"
+                  name="orderType"
+                  value="BUY"
+                  checked
+                  class="hidden peer"
+                />
+                <div
+                  class="flex flex-col items-center justify-center p-6 rounded-[1.5rem] border-2 border-slate-800 bg-slate-950/50 text-slate-600 font-black transition-all peer-checked:border-green-500 peer-checked:bg-green-500/10 peer-checked:text-green-500 peer-checked:shadow-[0_0_20px_rgba(34,197,94,0.1)]"
+                >
+                  <i class="fa fa-arrow-trend-up mb-2 text-xl"></i>
+                  <span class="text-xs tracking-widest uppercase"
+                    >Buy / Long</span
+                  >
+                </div>
+              </label>
+              <label class="cursor-pointer group">
+                <input
+                  type="radio"
+                  name="orderType"
+                  value="SELL"
+                  class="hidden peer"
+                />
+                <div
+                  class="flex flex-col items-center justify-center p-6 rounded-[1.5rem] border-2 border-slate-800 bg-slate-950/50 text-slate-600 font-black transition-all peer-checked:border-red-500 peer-checked:bg-red-500/10 peer-checked:text-red-500 peer-checked:shadow-[0_0_20px_rgba(239,68,68,0.1)]"
+                >
+                  <i class="fa fa-arrow-trend-down mb-2 text-xl"></i>
+                  <span class="text-xs tracking-widest uppercase"
+                    >Sell / Short</span
+                  >
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-5 space-y-6">
+      <div
+        class="bg-slate-950/40 rounded-[2.5rem] border border-white/5 p-8 backdrop-blur-2xl shadow-2xl space-y-8"
+      >
+        <div class="grid grid-cols-2 gap-6">
+          <div class="space-y-3">
+            <label
+              class="block text-[10px] font-black uppercase text-slate-500 tracking-widest"
+              >Open Price</label
+            >
+            <input
+              type="number"
+              id="entry"
+              step="0.00001"
+              placeholder="0.0000"
+              required
+              class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 text-sm font-mono font-black text-blue-300 outline-none focus:border-blue-500 transition-all"
+            />
+          </div>
+          <div class="space-y-3">
+            <label
+              class="block text-[10px] font-black uppercase text-slate-500 tracking-widest"
+              >Close Price</label
+            >
+            <input
+              type="number"
+              id="close"
+              step="0.00001"
+              placeholder="0.0000"
+              required
+              class="w-full bg-slate-900 border border-slate-800 rounded-2xl p-5 text-sm font-mono font-black text-blue-300 outline-none focus:border-blue-500 transition-all"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+          <div class="space-y-3">
+            <label
+              class="block text-[9px] font-black uppercase text-red-500/60 tracking-widest"
+              >Stop Loss</label
+            >
+            <input
+              type="number"
+              id="sl"
+              step="0.00001"
+              placeholder="---"
+              class="w-full bg-slate-900/50 border border-slate-800/50 rounded-2xl p-4 text-xs font-mono text-red-400 outline-none focus:border-red-500/30 transition-all"
+            />
+          </div>
+          <div class="space-y-3">
+            <label
+              class="block text-[9px] font-black uppercase text-green-500/60 tracking-widest"
+              >Take Profit</label
+            >
+            <input
+              type="number"
+              id="tp"
+              step="0.00001"
+              placeholder="---"
+              class="w-full bg-slate-900/50 border border-slate-800/50 rounded-2xl p-4 text-xs font-mono text-green-400 outline-none focus:border-green-500/30 transition-all"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6 pt-6 border-t border-white/5">
+          <div class="space-y-3">
+            <label
+              class="block text-[10px] font-black uppercase text-slate-500 tracking-widest"
+              >Swap ($)</label
+            >
+            <input
+              type="number"
+              id="swap"
+              step="0.01"
+              value="0.00"
+              class="w-full bg-slate-900/30 border border-slate-800/50 rounded-2xl p-4 text-xs font-mono text-slate-400 outline-none focus:border-blue-500/30 transition-all"
+            />
+          </div>
+          <div class="space-y-3">
+            <label
+              class="block text-[10px] font-black uppercase text-slate-500 tracking-widest"
+              >Commission ($)</label
+            >
+            <input
+              type="number"
+              id="komisi"
+              step="0.01"
+              value="0.00"
+              class="w-full bg-slate-900/30 border border-slate-800/50 rounded-2xl p-4 text-xs font-mono text-slate-400 outline-none focus:border-blue-500/30 transition-all"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          id="submitBtn"
+          class="group w-full relative overflow-hidden bg-blue-600 hover:bg-blue-500 text-white font-black py-6 rounded-[1.5rem] uppercase text-xs tracking-[0.3em] transition-all active:scale-95 shadow-2xl shadow-blue-900/40"
+        >
+          <span class="relative z-10 flex items-center justify-center gap-3">
+            <i class="fa fa-bolt"></i> Broadcast Execution
+          </span>
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_2s_infinite]"
+          ></div>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+  (function () {
+    // Live Clock Function
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById("live-clock").innerText =
+        now.toLocaleTimeString("en-GB") + " UTC";
+    }, 1000);
+
+    const AlertStyle = {
+      background: "#0a0f1d",
+      color: "#fff",
+      confirmButtonColor: "#2563eb",
+      customClass: { popup: "rounded-[2rem] border border-white/5 shadow-2xl" },
+    };
+
+    window.saveTrade = async function (e) {
+      e.preventDefault();
+      const btn = document.getElementById("submitBtn");
+      const orderType = document.querySelector(
+        'input[name="orderType"]:checked',
+      ).value;
+      const manualDateInput = document.getElementById("manualDate").value;
+
+      const tradeData = {
+        id: Date.now(),
+        pair: document.getElementById("pair").value.toUpperCase(),
+        type: orderType,
+        lot: Number(document.getElementById("lot").value) || 0,
+        entry: Number(document.getElementById("entry").value) || 0,
+        sl: Number(document.getElementById("sl").value) || 0,
+        tp: Number(document.getElementById("tp").value) || 0,
+        close: Number(document.getElementById("close").value) || 0,
+        swap: Number(document.getElementById("swap").value) || 0,
+        komisi: Number(document.getElementById("komisi").value) || 0,
+        date: manualDateInput
+          ? new Date(manualDateInput).toISOString()
+          : new Date().toISOString(),
+      };
+
+      try {
+        btn.disabled = true;
+        btn.innerHTML =
+          '<i class="fa fa-circle-notch animate-spin"></i> Processing...';
+
+        const res = await fetch("/api/trades", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(tradeData),
+        });
+
+        if (res.ok) {
+          await Swal.fire({
+            ...AlertStyle,
+            icon: "success",
+            title: "Trade Authorized",
+            text: `Position for ${tradeData.pair} has been broadcasted.`,
+            timer: 2000,
+            showConfirmButton: false,
+          });
+
+          document.getElementById("tradeForm").reset();
+          if (typeof loadPage === "function") loadPage("riwayat");
+        } else {
+          throw new Error("Server Reject");
+        }
+      } catch (err) {
+        Swal.fire({
+          ...AlertStyle,
+          icon: "error",
+          title: "System Error",
+          text: "Connection to terminal lost.",
+        });
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa fa-bolt"></i> Broadcast Execution';
+      }
+    };
+  })();
+</script>
+
+<style>
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+</style>

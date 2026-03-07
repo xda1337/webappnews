@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@700&display=swap");
+
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #020617;
+      }
+
+      .glass-card {
+        background: rgba(15, 23, 42, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(51, 65, 85, 0.5);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .glass-card:hover {
+        border-color: rgba(37, 99, 235, 0.5);
+        box-shadow: 0 0 20px rgba(37, 99, 235, 0.1);
+      }
+
+      .news-btn {
+        position: relative;
+        overflow: hidden;
+      }
+
+      .news-btn.active {
+        background: #2563eb;
+        color: white;
+        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+      }
+
+      .news-btn.active::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background: white;
+        animation: slideIn 0.3s ease;
+      }
+
+      @keyframes slideIn {
+        from {
+          width: 0;
+        }
+        to {
+          width: 100%;
+        }
+      }
+
+      /* Custom Scrollbar */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #0f172a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #2563eb;
+      }
+
+      .shimmer {
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.05),
+          transparent
+        );
+        background-size: 200% 100%;
+        animation: shimmer 3s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: -200% 0;
+        }
+        100% {
+          background-position: 200% 0;
+        }
+      }
+    </style>
+  </head>
+  <body class="p-4 md:p-8">
+    <div class="max-w-[1600px] mx-auto space-y-6 pb-24 text-slate-200">
+      <header
+        class="flex flex-col md:row-span-1 md:flex-row gap-4 justify-between items-center glass-card p-6 rounded-2xl relative overflow-hidden"
+      >
+        <div class="absolute top-0 left-0 w-1.5 h-full bg-blue-600"></div>
+        <div class="shimmer absolute inset-0 pointer-events-none"></div>
+
+        <div class="flex items-center gap-5 z-10">
+          <div
+            class="bg-blue-600/20 p-3.5 rounded-xl border border-blue-500/30"
+          >
+            <i class="fa fa-terminal text-blue-500 text-xl animate-pulse"></i>
+          </div>
+          <div>
+            <h2
+              class="text-2xl font-black uppercase tracking-tighter text-white"
+            >
+              HANSFX <span class="text-blue-500">Intelligence</span> Terminal
+            </h2>
+            <div class="flex items-center gap-2 mt-1">
+              <span class="flex h-2 w-2 relative">
+                <span
+                  class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"
+                ></span>
+                <span
+                  class="relative inline-flex rounded-full h-2 w-2 bg-green-500"
+                ></span>
+              </span>
+              <p
+                class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em]"
+              >
+                Global Live Feed
+                <span class="text-slate-600 mx-1">|</span> Protocol v4.0.2
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-8 z-10">
+          <div class="hidden xl:block border-l border-slate-800 pl-8">
+            <p
+              class="text-[10px] text-slate-500 font-black uppercase mb-1.5 tracking-widest"
+            >
+              Market Sentiment
+            </p>
+            <div class="flex items-center gap-1.5">
+              <div class="flex gap-1">
+                <span class="w-3 h-3 bg-green-500 rounded-sm"></span>
+                <span class="w-3 h-3 bg-green-500 rounded-sm"></span>
+                <span class="w-3 h-3 bg-slate-700 rounded-sm"></span>
+              </div>
+              <span class="text-xs font-black text-green-400 ml-2"
+                >MODERATE BULLISH</span
+              >
+            </div>
+          </div>
+
+          <div
+            class="bg-black/60 p-3 px-6 rounded-xl border border-slate-800 shadow-inner min-w-[160px]"
+          >
+            <p
+              class="text-[9px] text-blue-500/70 font-black uppercase tracking-widest mb-1"
+            >
+              System Time (WIB)
+            </p>
+            <p
+              id="live-clock"
+              class="text-xl font-mono font-bold text-blue-400 tabular-nums"
+            >
+              00:00:00
+            </p>
+          </div>
+        </div>
+      </header>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-3 space-y-6">
+          <div
+            class="glass-card rounded-3xl flex flex-col h-[480px] overflow-hidden group"
+          >
+            <div
+              class="p-4 border-b border-slate-800/50 flex justify-between items-center bg-slate-800/20"
+            >
+              <div class="flex items-center gap-2">
+                <i class="fa fa-layer-group text-blue-500 text-xs"></i>
+                <p
+                  class="text-[11px] font-black uppercase tracking-widest text-white"
+                >
+                  Market Watch
+                </p>
+              </div>
+              <i
+                class="fa fa-expand-alt text-slate-600 text-[10px] cursor-pointer hover:text-white transition-colors"
+              ></i>
+            </div>
+            <div id="tv-screener" class="flex-grow"></div>
+          </div>
+
+          <div
+            class="glass-card rounded-3xl flex flex-col h-[420px] overflow-hidden"
+          >
+            <div
+              class="p-4 border-b border-slate-800/50 flex justify-between items-center bg-slate-800/20"
+            >
+              <div class="flex items-center gap-2">
+                <i class="fa fa-calendar-day text-red-500 text-xs"></i>
+                <p
+                  class="text-[11px] font-black uppercase tracking-widest text-white"
+                >
+                  Impact Events
+                </p>
+              </div>
+              <span
+                class="text-[9px] bg-red-600/20 text-red-500 px-2 py-1 rounded border border-red-500/30 font-black"
+                >HIGH VOL</span
+              >
+            </div>
+            <div id="tv-mini-calendar" class="flex-grow"></div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 space-y-4">
+          <div
+            class="glass-card rounded-3xl overflow-hidden h-[915px] shadow-2xl flex flex-col border-blue-500/10"
+          >
+            <div
+              class="bg-slate-900/90 p-3 flex gap-2 justify-center border-b border-slate-800/50 sticky top-0 z-20"
+            >
+              <button
+                onclick="updateNews('all_symbols', this)"
+                class="news-btn active px-6 py-2.5 text-[11px] font-black uppercase rounded-xl transition-all flex items-center gap-2"
+              >
+                <i class="fa fa-globe-asia"></i> Headlines
+              </button>
+              <button
+                onclick="updateNews('forex', this)"
+                class="news-btn px-6 py-2.5 text-[11px] font-black uppercase rounded-xl transition-all text-slate-400 hover:bg-slate-800 hover:text-white flex items-center gap-2"
+              >
+                <i class="fa fa-coins"></i> Forex
+              </button>
+              <button
+                onclick="updateNews('crypto', this)"
+                class="news-btn px-6 py-2.5 text-[11px] font-black uppercase rounded-xl transition-all text-slate-400 hover:bg-slate-800 hover:text-white flex items-center gap-2"
+              >
+                <i class="fa fa-bitcoin-sign"></i> Crypto
+              </button>
+            </div>
+            <div id="tv-main-news" class="flex-grow bg-slate-900/20"></div>
+          </div>
+        </div>
+
+        <div class="lg:col-span-3 space-y-6">
+          <div
+            class="glass-card rounded-3xl flex flex-col h-[480px] overflow-hidden"
+          >
+            <div class="p-4 border-b border-slate-800 bg-slate-800/30">
+              <p
+                class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-3"
+              >
+                Technical Gauge
+              </p>
+              <select
+                id="gauge-selector"
+                onchange="updateGauge(this.value)"
+                class="w-full bg-slate-950 border border-slate-700 rounded-xl text-[11px] font-black uppercase p-3 text-blue-400 outline-none focus:border-blue-500 transition-all cursor-pointer"
+              >
+                <option value="OANDA:XAUUSD">GOLD (XAUUSD)</option>
+                <option value="FX:EURUSD">EURUSD</option>
+                <option value="FX:GBPUSD">GBPUSD</option>
+                <option value="BINANCE:BTCUSDT">BITCOIN (BTC)</option>
+                <option value="FX:USDJPY">USDJPY</option>
+              </select>
+            </div>
+            <div id="tv-tech-gauge" class="flex-grow"></div>
+          </div>
+
+          <div class="glass-card rounded-3xl p-6 relative overflow-hidden">
+            <div class="absolute -top-4 -right-4 opacity-5 pointer-events-none">
+              <i class="fa fa-chart-line text-8xl text-white"></i>
+            </div>
+
+            <h4
+              class="text-xs font-black text-white uppercase mb-6 flex items-center gap-2"
+            >
+              <span class="p-1.5 bg-blue-500/20 rounded-md"
+                ><i class="fa fa-bolt-lightning text-blue-500"></i
+              ></span>
+              Currency Strength
+            </h4>
+
+            <div id="strength-meter" class="space-y-5"></div>
+
+            <div class="mt-8 pt-5 border-t border-slate-800/50">
+              <div class="flex justify-between items-center opacity-60">
+                <span class="text-[9px] font-black uppercase tracking-tighter"
+                  >Data Stream: Stable</span
+                >
+                <span class="text-[9px] font-mono text-blue-400">SYNC_OK</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // System Clock - Realtime sync
+      function startClock() {
+        const updateClock = () => {
+          const now = new Date();
+          const timeString = now.toLocaleTimeString("id-ID", {
+            hour12: false,
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          });
+          document.getElementById("live-clock").innerText = timeString;
+        };
+        updateClock();
+        setInterval(updateClock, 1000);
+      }
+
+      function loadWidget(id, src, config) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = "";
+        const s = document.createElement("script");
+        s.type = "text/javascript";
+        s.src = src;
+        s.async = true;
+        s.innerHTML = JSON.stringify(config);
+        el.appendChild(s);
+      }
+
+      function updateNews(category, btnElement) {
+        const config = {
+          colorTheme: "dark",
+          isTransparent: true,
+          displayMode: "regular",
+          width: "100%",
+          height: "100%",
+          locale: "id",
+        };
+
+        if (category === "forex") {
+          config.feedMode = "market";
+          config.market = "forex";
+        } else if (category === "crypto") {
+          config.feedMode = "market";
+          config.market = "crypto";
+        } else {
+          config.feedMode = "all_symbols";
+        }
+
+        loadWidget(
+          "tv-main-news",
+          "https://s3.tradingview.com/external-embedding/embed-widget-timeline.js",
+          config,
+        );
+
+        // UI Button Update with Animation
+        if (btnElement) {
+          document.querySelectorAll(".news-btn").forEach((b) => {
+            b.classList.remove("active");
+            b.classList.add("text-slate-400");
+          });
+          btnElement.classList.add("active");
+          btnElement.classList.remove("text-slate-400");
+        }
+      }
+
+      function updateGauge(symbol) {
+        loadWidget(
+          "tv-tech-gauge",
+          "https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js",
+          {
+            interval: "1h",
+            width: "100%",
+            height: "100%",
+            isTransparent: true,
+            symbol: symbol,
+            showIntervalTabs: true,
+            displayMode: "single",
+            locale: "id",
+            colorTheme: "dark",
+          },
+        );
+      }
+
+      function renderStrength() {
+        const currencies = [
+          {
+            name: "USD",
+            val: 82,
+            color: "bg-blue-500",
+            shadow: "shadow-blue-500/40",
+          },
+          {
+            name: "EUR",
+            val: 45,
+            color: "bg-emerald-500",
+            shadow: "shadow-emerald-500/40",
+          },
+          {
+            name: "JPY",
+            val: 28,
+            color: "bg-red-500",
+            shadow: "shadow-red-500/40",
+          },
+          {
+            name: "GBP",
+            val: 65,
+            color: "bg-amber-500",
+            shadow: "shadow-amber-500/40",
+          },
+        ];
+
+        const container = document.getElementById("strength-meter");
+        container.innerHTML = currencies
+          .map(
+            (c) => `
+            <div>
+                <div class="flex justify-between items-end mb-2">
+                    <span class="text-xs font-black text-white tracking-widest">${c.name}</span>
+                    <span class="text-[10px] font-mono font-bold text-slate-400">${c.val}%</span>
+                </div>
+                <div class="w-full bg-slate-800/50 h-2 rounded-full overflow-hidden border border-slate-700/30 p-[1px]">
+                    <div class="${c.color} ${c.shadow} h-full rounded-full transition-all duration-[1500ms] ease-out shadow-lg" 
+                         style="width: 0%;" id="bar-${c.name}"></div>
+                </div>
+            </div>
+        `,
+          )
+          .join("");
+
+        // Animate bars on load
+        setTimeout(() => {
+          currencies.forEach((c) => {
+            const bar = document.getElementById(`bar-${c.name}`);
+            if (bar) bar.style.width = c.val + "%";
+          });
+        }, 300);
+      }
+
+      // Initialize all terminal systems
+      (function initTerminal() {
+        startClock();
+
+        // 1. Market Overview
+        loadWidget(
+          "tv-screener",
+          "https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js",
+          {
+            colorTheme: "dark",
+            dateRange: "12M",
+            showChart: false,
+            locale: "id",
+            width: "100%",
+            height: "100%",
+            isTransparent: true,
+            tabs: [
+              {
+                title: "Forex Pairs",
+                symbols: [
+                  { s: "FX:EURUSD" },
+                  { s: "FX:GBPUSD" },
+                  { s: "FX:USDJPY" },
+                  { s: "OANDA:XAUUSD" },
+                ],
+              },
+              {
+                title: "Crypto",
+                symbols: [{ s: "BINANCE:BTCUSDT" }, { s: "BINANCE:ETHUSDT" }],
+              },
+            ],
+          },
+        );
+
+        // 2. Calendar
+        loadWidget(
+          "tv-mini-calendar",
+          "https://s3.tradingview.com/external-embedding/embed-widget-events.js",
+          {
+            colorTheme: "dark",
+            isTransparent: true,
+            width: "100%",
+            height: "100%",
+            locale: "id",
+            importanceFilter: "-1,0,1",
+          },
+        );
+
+        // 3. Defaults
+        updateNews("all_symbols", document.querySelector(".news-btn"));
+        updateGauge("OANDA:XAUUSD");
+        renderStrength();
+      })();
+    </script>
+  </body>
+</html>

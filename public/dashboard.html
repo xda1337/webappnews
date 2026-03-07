@@ -1,0 +1,573 @@
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div
+  class="space-y-6 pb-24 text-slate-200 animate-in fade-in zoom-in-95 duration-700"
+>
+  <div
+    class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 bg-slate-900/40 p-6 rounded-[2rem] border border-slate-800/50 backdrop-blur-md"
+  >
+    <div>
+      <div class="flex items-center gap-3 mb-1">
+        <div class="relative">
+          <div class="h-3 w-3 bg-green-500 rounded-full"></div>
+          <div
+            class="absolute inset-0 h-3 w-3 bg-green-500 rounded-full animate-ping opacity-75"
+          ></div>
+        </div>
+        <h2 class="text-3xl font-black uppercase tracking-tighter text-white">
+          Quantum Terminal
+        </h2>
+      </div>
+      <p
+        class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.3em]"
+      >
+        Neural Network Portfolio Tracking • V2.0
+      </p>
+    </div>
+    <div class="flex items-center gap-6">
+      <div class="text-right hidden md:block">
+        <p
+          class="text-[8px] text-slate-500 font-black uppercase tracking-widest"
+        >
+          Server Time
+        </p>
+        <p id="server-time" class="text-xs font-mono text-slate-300">
+          00:00:00
+        </p>
+      </div>
+      <div class="h-10 w-[1px] bg-slate-800 hidden md:block"></div>
+      <div class="flex flex-col items-end">
+        <span
+          class="text-[9px] font-black text-blue-500 uppercase tracking-widest mb-1"
+          >System Integrity</span
+        >
+        <div class="flex gap-1">
+          <div class="h-1 w-4 bg-blue-500 rounded-full"></div>
+          <div class="h-1 w-4 bg-blue-500 rounded-full"></div>
+          <div class="h-1 w-4 bg-blue-500 rounded-full animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="rounded-xl border border-slate-800/50 bg-slate-950/80 overflow-hidden shadow-2xl"
+    id="ticker-wrapper"
+  ></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div
+      class="lg:col-span-5 bg-slate-900 rounded-[2.5rem] border border-slate-800 p-1 relative overflow-hidden group shadow-2xl"
+    >
+      <div
+        class="bg-gradient-to-br from-blue-600 via-indigo-900 to-slate-950 p-8 rounded-[2.3rem] h-full relative overflow-hidden"
+      >
+        <div
+          class="absolute -right-20 -bottom-20 w-80 h-80 bg-blue-500/20 rounded-full blur-[100px] group-hover:bg-blue-500/30 transition-all duration-1000"
+        ></div>
+        <div class="absolute top-0 right-0 p-8">
+          <i class="fa fa-fingerprint text-white/10 text-6xl"></i>
+        </div>
+
+        <div class="relative z-10 flex flex-col justify-between h-full">
+          <div>
+            <div class="flex items-center gap-2 mb-4">
+              <span
+                class="bg-white/10 backdrop-blur-md px-3 py-1 rounded-full text-[8px] font-black text-white uppercase tracking-tighter"
+                >Verified Portfolio</span
+              >
+            </div>
+            <p
+              class="text-[11px] font-bold text-blue-200/60 uppercase tracking-[0.4em] mb-2"
+            >
+              Total Net Liquidity
+            </p>
+            <h2
+              id="view-balance"
+              class="text-6xl font-mono font-black text-white tracking-tighter drop-shadow-2xl"
+            >
+              $0.00
+            </h2>
+          </div>
+
+          <div class="mt-16 space-y-4">
+            <div class="flex justify-between items-end">
+              <div>
+                <p
+                  class="text-[10px] font-black text-blue-200 uppercase tracking-widest opacity-70"
+                >
+                  Efficiency Index
+                </p>
+                <p id="retention-pct" class="text-3xl font-black text-white">
+                  0%
+                </p>
+              </div>
+              <div class="text-right">
+                <p
+                  class="text-[10px] font-black text-blue-200 uppercase tracking-widest opacity-70"
+                >
+                  Avg. Risk/Reward
+                </p>
+                <p class="text-xl font-mono font-bold text-white">1:2.4</p>
+              </div>
+            </div>
+            <div
+              class="w-full bg-black/40 rounded-full h-3 p-1 backdrop-blur-sm border border-white/5"
+            >
+              <div
+                id="retention-bar"
+                class="bg-gradient-to-r from-blue-400 to-cyan-300 h-full rounded-full shadow-[0_0_20px_rgba(56,189,248,0.6)] transition-all duration-[2s] ease-out"
+                style="width: 0%"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-7 grid grid-cols-2 gap-4">
+      <div
+        class="bg-slate-900/80 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden group hover:border-green-500/50 transition-all shadow-xl"
+      >
+        <div
+          class="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-20 transition-opacity"
+        >
+          <i class="fa fa-sack-dollar text-4xl"></i>
+        </div>
+        <p
+          class="text-[10px] text-slate-500 font-black uppercase mb-3 tracking-widest"
+        >
+          Total Realized PnL
+        </p>
+        <p
+          id="p-net"
+          class="text-3xl font-black font-mono tracking-tighter text-slate-300"
+        >
+          $0.00
+        </p>
+        <div class="mt-4 flex items-center gap-2">
+          <span
+            class="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse"
+          ></span>
+          <span class="text-[9px] text-green-500 font-bold uppercase"
+            >Profit Secured</span
+          >
+        </div>
+      </div>
+      <div
+        class="bg-slate-900/80 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden group shadow-xl"
+      >
+        <p
+          class="text-[10px] text-slate-500 font-black uppercase mb-3 tracking-widest"
+        >
+          Capital Inflow
+        </p>
+        <p
+          id="p-depo"
+          class="text-3xl font-black font-mono tracking-tighter text-white"
+        >
+          $0.00
+        </p>
+        <p class="text-[9px] text-slate-600 font-bold uppercase mt-4 italic">
+          Baseline Deposits
+        </p>
+      </div>
+      <div
+        class="bg-slate-900/80 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden group shadow-xl"
+      >
+        <p
+          class="text-[10px] text-slate-500 font-black uppercase mb-3 tracking-widest"
+        >
+          Total Payouts
+        </p>
+        <p
+          id="p-wd"
+          class="text-3xl font-black font-mono tracking-tighter text-orange-500"
+        >
+          $0.00
+        </p>
+        <p class="text-[9px] text-slate-600 font-bold uppercase mt-4 italic">
+          Liquidated Assets
+        </p>
+      </div>
+      <div
+        class="bg-slate-900/80 border border-slate-800 p-6 rounded-[2rem] relative overflow-hidden group border-blue-500/20 shadow-xl"
+      >
+        <div
+          class="absolute inset-0 bg-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity"
+        ></div>
+        <p
+          class="text-[10px] text-slate-500 font-black uppercase mb-3 tracking-widest"
+        >
+          Tactical Win Rate
+        </p>
+        <p
+          id="p-winrate"
+          class="text-3xl font-black font-mono tracking-tighter text-blue-400"
+        >
+          0%
+        </p>
+        <div class="mt-4 h-1 w-full bg-slate-800 rounded-full overflow-hidden">
+          <div
+            id="wr-mini-bar"
+            class="h-full bg-blue-500 transition-all duration-1000"
+            style="width: 0%"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div
+      class="lg:col-span-2 bg-slate-900/60 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
+    >
+      <div class="flex justify-between items-center mb-8">
+        <h4
+          class="text-xs font-black text-white uppercase tracking-[0.2em] flex items-center gap-3"
+        >
+          <span
+            class="w-1.5 h-6 bg-blue-600 rounded-full shadow-[0_0_15px_rgba(37,99,235,0.6)]"
+          ></span>
+          Neural Equity Curve
+        </h4>
+        <div class="flex bg-slate-950 p-1 rounded-lg border border-slate-800">
+          <button
+            class="px-3 py-1 text-[8px] font-black text-white bg-blue-600 rounded-md"
+          >
+            LIVE
+          </button>
+          <button
+            class="px-3 py-1 text-[8px] font-black text-slate-500 hover:text-white transition-colors"
+          >
+            HISTORIC
+          </button>
+        </div>
+      </div>
+      <div class="h-[350px] w-full">
+        <canvas id="equityChart"></canvas>
+      </div>
+    </div>
+
+    <div
+      class="lg:col-span-1 bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col items-center justify-between shadow-2xl"
+    >
+      <div class="w-full text-left">
+        <h4 class="text-xs font-black text-white uppercase tracking-widest">
+          Execution Bias
+        </h4>
+        <p
+          class="text-[9px] text-slate-500 font-bold uppercase tracking-tighter"
+        >
+          Profit vs Loss Distribution
+        </p>
+      </div>
+
+      <div
+        class="relative w-48 h-48 flex items-center justify-center my-6 group"
+      >
+        <div
+          class="absolute inset-0 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-all"
+        ></div>
+        <svg class="w-full h-full -rotate-90 scale-110">
+          <circle
+            cx="96"
+            cy="96"
+            r="85"
+            stroke="#1e293b"
+            stroke-width="14"
+            fill="transparent"
+          />
+          <circle
+            id="win-circle"
+            cx="96"
+            cy="96"
+            r="85"
+            stroke="url(#blueGradient)"
+            stroke-width="14"
+            fill="transparent"
+            stroke-dasharray="534"
+            stroke-dashoffset="534"
+            stroke-linecap="round"
+            class="transition-all duration-[1.5s] ease-out"
+          />
+          <defs>
+            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#3b82f6" />
+              <stop offset="100%" stop-color="#06b6d4" />
+            </linearGradient>
+          </defs>
+        </svg>
+        <div class="absolute inset-0 flex flex-col items-center justify-center">
+          <span
+            id="win-pct-center"
+            class="text-5xl font-black text-white font-mono tracking-tighter"
+            >0%</span
+          >
+          <span
+            class="text-[8px] font-black text-blue-400 uppercase tracking-[0.2em] mt-1"
+            >Accuracy</span
+          >
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4 w-full">
+        <div
+          class="bg-slate-950/50 p-4 rounded-2xl border border-slate-800 text-center"
+        >
+          <p id="win-count" class="text-2xl font-black text-green-500">0</p>
+          <p class="text-[9px] font-black text-slate-500 uppercase">Wins</p>
+        </div>
+        <div
+          class="bg-slate-950/50 p-4 rounded-2xl border border-slate-800 text-center"
+        >
+          <p id="loss-count" class="text-2xl font-black text-red-500">0</p>
+          <p class="text-[9px] font-black text-slate-500 uppercase">Losses</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div
+    class="bg-slate-900 border border-slate-800 rounded-[2.5rem] p-8 shadow-2xl relative overflow-hidden"
+  >
+    <div class="absolute top-0 right-0 p-8 opacity-5">
+      <i class="fa fa-microchip text-8xl"></i>
+    </div>
+    <div class="flex justify-between items-center mb-8 relative z-10">
+      <div>
+        <h4 class="text-xs font-black text-white uppercase tracking-[0.2em]">
+          Live Execution Stream
+        </h4>
+        <p class="text-[9px] text-slate-600 font-bold uppercase mt-1 italic">
+          Interpreting latest market interactions...
+        </p>
+      </div>
+      <button
+        class="bg-slate-800 hover:bg-slate-700 text-white text-[9px] font-black px-4 py-2 rounded-lg uppercase transition-all"
+      >
+        Export Logs
+      </button>
+    </div>
+    <div
+      id="activity-feed"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10"
+    ></div>
+  </div>
+</div>
+
+<script>
+  // Helper: Animasi Angka Berjalan (Counter)
+  function animateValue(id, start, end, duration, isCurrency = false) {
+    const obj = document.getElementById(id);
+    if (!obj) return;
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+      const val = progress * (end - start) + start;
+      obj.innerText = isCurrency
+        ? "$" +
+          val.toLocaleString(undefined, {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        : Math.floor(val) +
+          (id.includes("pct") || id.includes("winrate") ? "%" : "");
+      if (progress < 1) {
+        window.requestAnimationFrame(step);
+      }
+    };
+    window.requestAnimationFrame(step);
+  }
+
+  // Dashboard Core Logic
+  (async function initDashboard() {
+    // 1. Digital Clock
+    setInterval(() => {
+      document.getElementById("server-time").innerText =
+        new Date().toLocaleTimeString("en-GB");
+    }, 1000);
+
+    // 2. Load Widgets
+    function loadWidget(id, src, config) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.innerHTML = "";
+      const s = document.createElement("script");
+      s.type = "text/javascript";
+      s.src = src;
+      s.async = true;
+      s.innerHTML = JSON.stringify(config);
+      el.appendChild(s);
+    }
+
+    loadWidget(
+      "ticker-wrapper",
+      "https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js",
+      {
+        symbols: [
+          { proName: "FX_IDC:XAUUSD", description: "GOLD" },
+          { proName: "FX:EURUSD", description: "EURUSD" },
+          { proName: "BITSTAMP:BTCUSD", description: "BTC" },
+          { proName: "NASDAQ:TSLA", description: "TESLA" },
+        ],
+        colorTheme: "dark",
+        isTransparent: true,
+        displayMode: "adaptive",
+        locale: "en",
+      },
+    );
+
+    // 3. Fetch Data & Process
+    try {
+      const res = await fetch("/api/data");
+      const db = await res.json();
+
+      let tGross = 0,
+        tDepo = 0,
+        tWD = 0;
+      let wins = 0,
+        losses = 0;
+      let equityHistory = [];
+      let runningBalance = 0;
+
+      const combined = [
+        ...db.trades.map((t) => ({ ...t, source: "trade" })),
+        ...db.logs.map((l) => ({ ...l, source: "balance" })),
+      ].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      combined.forEach((item) => {
+        if (item.source === "trade") {
+          const diff =
+            item.type === "BUY"
+              ? item.close - item.entry
+              : item.entry - item.close;
+          const net =
+            diff * item.lot * 100 +
+            (parseFloat(item.swap) || 0) -
+            (parseFloat(item.komisi) || 0);
+          tGross += net;
+          runningBalance += net;
+          net >= 0 ? wins++ : losses++;
+        } else {
+          const amt = parseFloat(item.amount) || 0;
+          if (item.type.toLowerCase() === "deposit") {
+            tDepo += amt;
+            runningBalance += amt;
+          } else {
+            tWD += amt;
+            runningBalance -= amt;
+          }
+        }
+        equityHistory.push({
+          t: new Date(item.date).toLocaleDateString(),
+          y: runningBalance,
+        });
+      });
+
+      const finalEquity = Math.max(0, runningBalance);
+      const totalTrades = wins + losses;
+      const winRate =
+        totalTrades > 0 ? Math.round((wins / totalTrades) * 100) : 0;
+      const growth = tDepo > 0 ? ((tGross / tDepo) * 100).toFixed(1) : 0;
+
+      // START COUNTER ANIMATIONS
+      animateValue("view-balance", 0, finalEquity, 2000, true);
+      animateValue("p-net", 0, tGross, 1500, true);
+      animateValue("p-depo", 0, tDepo, 1500, true);
+      animateValue("p-wd", 0, tWD, 1500, true);
+      animateValue("p-winrate", 0, winRate, 1000);
+      animateValue("win-pct-center", 0, winRate, 1500);
+      animateValue("retention-pct", 0, growth, 2000);
+
+      // Bars & Progress
+      setTimeout(() => {
+        document.getElementById("retention-bar").style.width =
+          `${Math.min(100, Math.max(0, growth))}%`;
+        document.getElementById("wr-mini-bar").style.width = `${winRate}%`;
+        document.getElementById("win-circle").style.strokeDashoffset =
+          534 - (534 * winRate) / 100;
+        document.getElementById("win-count").innerText = wins;
+        document.getElementById("loss-count").innerText = losses;
+      }, 500);
+
+      // Activity Feed (Last 4)
+      const last4 = [...combined]
+        .reverse()
+        .filter((x) => x.source === "trade")
+        .slice(0, 4);
+      document.getElementById("activity-feed").innerHTML = last4
+        .map((t) => {
+          const diff = t.type === "BUY" ? t.close - t.entry : t.entry - t.close;
+          const net =
+            diff * t.lot * 100 +
+            (parseFloat(t.swap) || 0) -
+            (parseFloat(t.komisi) || 0);
+          return `
+            <div class="bg-slate-950 border border-slate-800 p-5 rounded-3xl hover:border-blue-500/30 transition-all group shadow-lg">
+                <div class="flex justify-between items-start mb-4">
+                    <div class="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center text-xs font-black text-white">${t.pair.substring(0, 2)}</div>
+                    <span class="text-[8px] font-black px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-500 uppercase">${new Date(t.date).toLocaleDateString()}</span>
+                </div>
+                <p class="text-sm font-black text-white mb-1 uppercase tracking-tighter">${t.pair}</p>
+                <div class="flex justify-between items-end">
+                    <p class="text-[9px] text-slate-500 font-bold uppercase">${t.type} · ${t.lot} LOT</p>
+                    <p class="text-lg font-mono font-black ${net >= 0 ? "text-green-500" : "text-red-500"}">${net >= 0 ? "+" : ""}${net.toFixed(2)}</p>
+                </div>
+            </div>`;
+        })
+        .join("");
+
+      renderChart(equityHistory);
+    } catch (e) {
+      console.error("Neural Sync Error:", e);
+    }
+  })();
+
+  function renderChart(history) {
+    const ctx = document.getElementById("equityChart").getContext("2d");
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, "rgba(37, 99, 235, 0.3)");
+    gradient.addColorStop(1, "rgba(37, 99, 235, 0)");
+
+    new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: history.map((h) => h.t),
+        datasets: [
+          {
+            data: history.map((h) => h.y),
+            borderColor: "#2563eb",
+            borderWidth: 4,
+            fill: true,
+            backgroundColor: gradient,
+            tension: 0.5,
+            pointRadius: 0,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: "#fff",
+            pointHoverBorderColor: "#2563eb",
+            pointHoverBorderWidth: 4,
+          },
+        ],
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { mode: "index", intersect: false },
+        },
+        scales: {
+          y: {
+            grid: { color: "rgba(30, 41, 59, 0.5)", borderDash: [5, 5] },
+            ticks: { color: "#475569", font: { size: 9, weight: "bold" } },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: "#475569", font: { size: 9, weight: "bold" } },
+          },
+        },
+      },
+    });
+  }
+</script>
