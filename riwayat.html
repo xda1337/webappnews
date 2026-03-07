@@ -216,7 +216,7 @@
 
     window.prosesFilterRiwayat = async function () {
       try {
-        const res = await fetch("journal.json");
+        const res = await fetch("/api/data");
         const db = await res.json();
         const range = document.getElementById("rangeFilter").value;
 

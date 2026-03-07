@@ -421,7 +421,7 @@
 
     // 3. Fetch Data & Process
     try {
-      const res = await fetch("journal.json");
+      const res = await fetch("/api/data");
       const db = await res.json();
 
       let tGross = 0,
