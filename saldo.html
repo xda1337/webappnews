@@ -12,7 +12,7 @@
       <h2
         class="text-4xl font-black uppercase tracking-tighter text-white italic"
       >
-        CASH<span class="text-blue-500 text-stroke-sm">FLOW</span>
+        CASH<span class="text-blue-500">FLOW</span>
       </h2>
       <div class="flex items-center gap-2">
         <span class="h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
@@ -39,9 +39,6 @@
     >
       <div
         class="absolute top-0 right-0 w-32 h-32 bg-blue-600/20 rounded-full blur-[60px] -mr-10 -mt-10"
-      ></div>
-      <div
-        class="absolute bottom-0 left-0 w-24 h-24 bg-indigo-600/10 rounded-full blur-[40px] -ml-10 -mb-10"
       ></div>
 
       <div class="relative z-10 space-y-10">
@@ -117,27 +114,23 @@
           type="number"
           id="amount-input"
           placeholder="0.00"
-          class="w-full bg-slate-950 border-2 border-slate-800/50 rounded-[1.5rem] py-7 pl-14 pr-8 text-4xl font-mono font-black text-white focus:outline-none focus:border-blue-600 focus:ring-8 focus:ring-blue-600/5 transition-all placeholder:text-slate-800"
+          class="w-full bg-slate-950 border-2 border-slate-800/50 rounded-[1.5rem] py-7 pl-14 pr-8 text-4xl font-mono font-black text-white focus:outline-none focus:border-blue-600 transition-all placeholder:text-slate-800"
         />
       </div>
     </div>
 
     <div class="grid grid-cols-2 gap-4">
       <button
-        id="btn-deposit"
-        class="group relative overflow-hidden bg-white hover:bg-blue-50 text-slate-950 font-black py-6 rounded-[1.2rem] uppercase text-[12px] tracking-widest transition-all active:scale-95 shadow-xl"
+        onclick="executeTransaction('DEPOSIT')"
+        class="group bg-white hover:bg-blue-50 text-slate-950 font-black py-6 rounded-[1.2rem] uppercase text-[12px] tracking-widest transition-all active:scale-95 shadow-xl"
       >
-        <span class="relative z-10"
-          ><i class="fa-solid fa-plus-circle mr-2"></i>Deposit</span
-        >
+        <i class="fa-solid fa-plus-circle mr-2"></i>Deposit
       </button>
       <button
-        id="btn-withdraw"
-        class="group relative overflow-hidden bg-slate-800 hover:bg-red-600 text-white font-black py-6 rounded-[1.2rem] uppercase text-[12px] tracking-widest transition-all active:scale-95 shadow-xl"
+        onclick="executeTransaction('WITHDRAW')"
+        class="group bg-slate-800 hover:bg-red-600 text-white font-black py-6 rounded-[1.2rem] uppercase text-[12px] tracking-widest transition-all active:scale-95 shadow-xl"
       >
-        <span class="relative z-10"
-          ><i class="fa-solid fa-minus-circle mr-2"></i>Withdraw</span
-        >
+        <i class="fa-solid fa-minus-circle mr-2"></i>Withdraw
       </button>
     </div>
   </div>
@@ -153,179 +146,142 @@
       <i class="fa-solid fa-list-ul text-slate-600 text-[10px]"></i>
     </div>
 
-    <div id="recent-logs" class="space-y-3 px-1">
-      <div
-        class="animate-pulse bg-slate-900/50 h-24 rounded-[1.8rem] border border-slate-800/50"
-      ></div>
-    </div>
+    <div id="recent-logs" class="space-y-3 px-1"></div>
   </div>
 </div>
 
 <script>
   (function () {
-    let currentBalance = 0;
-
-    // SweetAlert Config
+    // Alert Configuration
     const StyledAlert = {
-      background: "#0a0f1d",
+      background: "#0f172a",
       color: "#fff",
-      confirmButtonColor: "#2563eb",
+      confirmButtonColor: "#3b82f6",
       cancelButtonColor: "#1e293b",
       customClass: {
         popup: "rounded-[2rem] border border-slate-800 shadow-2xl",
-        title: "text-2xl font-black uppercase italic",
+        title: "text-2xl font-black uppercase",
         htmlContainer: "text-slate-400 font-medium",
       },
     };
 
-    const Toast = Swal.mixin({
-      toast: true,
-      position: "top",
-      showConfirmButton: false,
-      timer: 2500,
-      timerProgressBar: true,
-      background: "#0a0f1d",
-      color: "#fff",
-    });
+    // Load Data
+    window.loadWalletData = () => {
+      const db = getData(); // From db.js
+      const balance = parseFloat(db.profile.balance) || 0;
 
-    // 1. Fungsi Utama Ambil Data
-    window.loadWalletData = async () => {
-      try {
-        const res = await fetch("/api/data");
-        const db = await res.json();
+      const formatted = balance.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      });
 
-        let tDepo = 0,
-          tWD = 0,
-          tGross = 0,
-          tSwap = 0,
-          tKomisi = 0;
+      document.getElementById("wallet-balance").innerText = `$${formatted}`;
+      document.getElementById("available-margin").innerText = `$${formatted}`;
 
-        db.logs.forEach((l) => {
-          if (l.type.toLowerCase() === "deposit") tDepo += parseFloat(l.amount);
-          else tWD += parseFloat(l.amount);
-        });
-
-        db.trades.forEach((t) => {
-          const diff = t.type === "BUY" ? t.close - t.entry : t.entry - t.close;
-          tGross += diff * (parseFloat(t.lot) || 0) * 100;
-          tSwap += parseFloat(t.swap) || 0;
-          tKomisi += parseFloat(t.komisi) || 0;
-        });
-
-        currentBalance = tDepo + tGross + tSwap - tKomisi - tWD;
-        const formattedBalance = currentBalance.toLocaleString("en-US", {
-          minimumFractionDigits: 2,
-        });
-
-        document.getElementById("wallet-balance").innerText =
-          `$${formattedBalance}`;
-        document.getElementById("available-margin").innerText =
-          `$${formattedBalance}`;
-
-        renderLogs(db.logs);
-      } catch (e) {
-        console.error("Critical Error loading wallet:", e);
-      }
+      renderLogs(db.logs || []);
     };
 
-    // 2. Fungsi Render Riwayat
+    // Render Logs
     function renderLogs(logs) {
       const container = document.getElementById("recent-logs");
-      container.innerHTML = "";
+      if (!logs || logs.length === 0) {
+        container.innerHTML = `<p class="text-center text-slate-600 text-[10px] uppercase font-bold py-10">No records found</p>`;
+        return;
+      }
 
+      container.innerHTML = "";
       [...logs]
         .reverse()
-        .slice(0, 5)
+        .slice(0, 10)
         .forEach((log) => {
-          const isDepo = log.type.toLowerCase() === "deposit";
+          const isDepo = log.type === "DEPOSIT";
           container.innerHTML += `
-                <div class="group bg-slate-900/40 border border-slate-800/50 p-6 rounded-[1.8rem] flex justify-between items-center transition-all hover:bg-slate-800 hover:scale-[1.02]">
-                    <div class="flex items-center gap-5">
-                        <div class="w-14 h-14 rounded-2xl ${isDepo ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"} flex items-center justify-center text-xl shadow-inner">
-                            <i class="fa-solid ${isDepo ? "fa-arrow-down-long" : "fa-arrow-up-long"}"></i>
-                        </div>
-                        <div>
-                            <p class="text-xs font-black uppercase text-white tracking-widest">${log.type}</p>
-                            <p class="text-[9px] text-slate-500 font-bold mt-1 uppercase">${new Date(log.date).toLocaleString()}</p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-lg font-mono font-black ${isDepo ? "text-green-400" : "text-red-400"}">${isDepo ? "+" : "-"}$${parseFloat(log.amount).toFixed(2)}</p>
-                        <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
-                    </div>
-                </div>`;
+            <div class="group bg-slate-900/40 border border-slate-800/50 p-6 rounded-[1.8rem] flex justify-between items-center transition-all hover:bg-slate-800">
+              <div class="flex items-center gap-5">
+                <div class="w-12 h-12 rounded-2xl ${isDepo ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"} flex items-center justify-center text-lg">
+                  <i class="fa-solid ${isDepo ? "fa-arrow-down-long" : "fa-arrow-up-long"}"></i>
+                </div>
+                <div>
+                  <p class="text-xs font-black uppercase text-white tracking-widest">${log.type}</p>
+                  <p class="text-[9px] text-slate-500 font-bold mt-1 uppercase">${new Date(log.date).toLocaleString()}</p>
+                </div>
+              </div>
+              <div class="text-right">
+                <p class="text-lg font-mono font-black ${isDepo ? "text-green-400" : "text-red-400"}">
+                  ${isDepo ? "+" : "-"}$${parseFloat(log.amount).toFixed(2)}
+                </p>
+                <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
+              </div>
+            </div>`;
         });
     }
 
-    // 3. Fungsi Eksekusi Transaksi (POST)
-    async function executeTransaction(type) {
+    // Execute Transaction
+    window.executeTransaction = async (type) => {
       const input = document.getElementById("amount-input");
       const amount = parseFloat(input.value);
+      const db = getData();
+      let currentBalance = parseFloat(db.profile.balance) || 0;
 
       if (!amount || amount <= 0) {
-        return Toast.fire({ icon: "error", title: "Invalid amount entered" });
-      }
-
-      // LOGIKA WITHDRAW: Cek kecukupan saldo
-      if (type === "withdraw" && amount > currentBalance) {
         return Swal.fire({
           ...StyledAlert,
           icon: "error",
-          title: "Insufficient Funds",
-          text: "Your current balance is lower than the withdrawal request.",
+          title: "Invalid Amount",
         });
       }
 
-      // KONFIRMASI PRO
-      const confirmation = await Swal.fire({
+      if (type === "WITHDRAW" && amount > currentBalance) {
+        return Swal.fire({
+          ...StyledAlert,
+          icon: "error",
+          title: "Low Balance",
+          text: "Insufficient funds for this withdrawal.",
+        });
+      }
+
+      const confirm = await Swal.fire({
         ...StyledAlert,
         title: `Confirm ${type}`,
-        text: `Authorize payment of $${amount.toLocaleString()}?`,
+        text: `Authorize $${amount.toLocaleString()} transaction?`,
         showCancelButton: true,
-        confirmButtonText: "Authorize Now",
+        confirmButtonText: "Authorize",
         icon: "shield-check",
       });
 
-      if (!confirmation.isConfirmed) return;
+      if (!confirm.isConfirmed) return;
 
-      try {
-        Swal.showLoading();
-        const response = await fetch("/api/balance", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: type.toUpperCase(),
-            amount: amount,
-            date: new Date().toISOString(), // Memastikan tanggal tercatat tepat
-          }),
-        });
-
-        if (response.ok) {
-          input.value = "";
-          await Swal.fire({
-            ...StyledAlert,
-            icon: "success",
-            title: "Authorized",
-            text: "Transaction has been broadcasted to the network.",
-            timer: 2000,
-          });
-          // REFRESH SEMUA DATA
-          window.loadWalletData();
-        } else {
-          throw new Error("Server rejected transaction");
-        }
-      } catch (err) {
-        Toast.fire({ icon: "error", title: "Network Error" });
+      // Update Database Object
+      if (type === "DEPOSIT") {
+        db.profile.balance = currentBalance + amount;
+      } else {
+        db.profile.balance = currentBalance - amount;
       }
-    }
 
-    // 4. Link Event Listeners (WAJIB)
-    document.getElementById("btn-deposit").onclick = () =>
-      executeTransaction("deposit");
-    document.getElementById("btn-withdraw").onclick = () =>
-      executeTransaction("withdraw");
+      // Add to Logs
+      if (!db.logs) db.logs = [];
+      db.logs.push({
+        type: type,
+        amount: amount,
+        date: new Date().toISOString(),
+      });
 
-    // AUTO-INIT
-    window.loadWalletData();
+      // Save and Refresh
+      saveData(db);
+      input.value = "";
+
+      await Swal.fire({
+        ...StyledAlert,
+        icon: "success",
+        title: "Success",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+      loadWalletData();
+    };
+
+    // Initialize
+    loadWalletData();
   })();
 </script>

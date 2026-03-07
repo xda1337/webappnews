@@ -2,61 +2,130 @@
 <html lang="id">
   <head>
     <meta charset="UTF-8" />
-    <title>Login | HansFX</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login | HansFX Terminal</title>
+
+    <script src="db.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@500&display=swap");
+      body {
+        font-family: "Inter", sans-serif;
+      }
+    </style>
   </head>
   <body
     class="bg-slate-950 h-screen flex items-center justify-center p-6 text-slate-200"
   >
+    <div class="absolute inset-0 overflow-hidden pointer-events-none">
+      <div
+        class="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-600/10 rounded-full blur-[120px]"
+      ></div>
+      <div
+        class="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-indigo-600/10 rounded-full blur-[120px]"
+      ></div>
+    </div>
+
     <div
-      class="w-full max-w-sm bg-slate-900 p-8 rounded-xl border border-slate-800 text-center shadow-2xl"
+      class="w-full max-w-sm bg-slate-900/50 backdrop-blur-xl p-8 rounded-[2rem] border border-slate-800 text-center shadow-2xl relative z-10"
     >
-      <h1 class="text-2xl font-black mb-6 tracking-tighter text-blue-500">
-        HANSFX LOGIN
-      </h1>
-      <input
-        type="password"
-        id="p"
-        placeholder="Master Password"
-        class="w-full bg-slate-950 p-4 rounded border border-slate-800 mb-4 text-center font-mono outline-none focus:border-blue-500"
-      />
-      <button
-        onclick="lg()"
-        class="w-full bg-blue-600 p-4 rounded font-black uppercase shadow-lg hover:bg-blue-700 transition-all"
-      >
-        Unlock System
-      </button>
+      <div class="mb-8">
+        <div
+          class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 rounded-2xl shadow-lg shadow-blue-900/40 mb-4"
+        >
+          <svg
+            class="w-8 h-8 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+            />
+          </svg>
+        </div>
+        <h1 class="text-2xl font-black tracking-tighter text-white uppercase">
+          Hans<span class="text-blue-500">FX</span> Terminal
+        </h1>
+        <p
+          class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em] mt-1"
+        >
+          Authorized Access Only
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <input
+          type="password"
+          id="p"
+          placeholder="ENTER MASTER KEY"
+          class="w-full bg-slate-950 p-4 rounded-xl border border-slate-800 text-center font-mono text-blue-400 placeholder:text-slate-700 outline-none focus:border-blue-500 transition-all shadow-inner"
+        />
+
+        <button
+          onclick="lg()"
+          class="w-full bg-blue-600 hover:bg-blue-500 p-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg shadow-blue-900/20 transition-all active:scale-95"
+        >
+          Unlock System
+        </button>
+      </div>
+
+      <div class="mt-8 pt-6 border-t border-slate-800/50">
+        <p
+          class="text-[9px] text-slate-600 font-medium uppercase tracking-widest"
+        >
+          &copy; 2024 Quantum Portfolio System
+        </p>
+      </div>
     </div>
 
     <script>
-      async function lg() {
+      // Fungsi Login Utama
+      function lg() {
         const passInput = document.getElementById("p").value;
 
+        // getData() diambil dari db.js yang membaca LocalStorage
         try {
-          // Membaca file journal.json yang ada di root repository
-          const res = await fetch("journal.json");
+          const db = getData();
 
-          if (!res.ok) throw new Error("Gagal mengambil data");
-
-          const db = await res.json();
-
-          // Mengambil password dari struktur: profile -> password
           if (passInput === db.profile.password) {
+            // Set session agar bisa masuk ke index.html
             sessionStorage.setItem("isLoggedIn", "true");
-            window.location.href = "index.html";
+
+            // Beri feedback visual sedikit sebelum pindah
+            const btn = document.querySelector("button");
+            btn.innerHTML = "Access Granted...";
+            btn.className = btn.className.replace(
+              "bg-blue-600",
+              "bg-green-600",
+            );
+
+            setTimeout(() => {
+              window.location.href = "index.html";
+            }, 500);
           } else {
-            alert("Password Salah!");
+            alert("MASTER KEY INVALID");
+            document.getElementById("p").value = "";
           }
-        } catch (error) {
-          console.error(error);
-          alert("Error: File journal.json tidak ditemukan atau rusak.");
+        } catch (e) {
+          console.error("Database Error:", e);
+          alert("Sistem Gagal Memuat Data Lokal.");
         }
       }
 
-      // Fitur tambahan: Tekan Enter untuk login
+      // Shortcut Enter
       document.getElementById("p").addEventListener("keypress", (e) => {
         if (e.key === "Enter") lg();
       });
+
+      // Cek jika sudah login, langsung lempar ke index
+      if (sessionStorage.getItem("isLoggedIn") === "true") {
+        window.location.href = "index.html";
+      }
     </script>
   </body>
 </html>

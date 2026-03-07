@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HANSFX | Professional Trading Journal</title>
+
+    <script src="db.js"></script>
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link
       rel="stylesheet"
@@ -42,8 +45,10 @@
   </head>
   <body class="bg-slate-950 text-slate-200 overflow-x-hidden">
     <script>
-      // Auth Guard sederhana
-      if (sessionStorage.getItem("isLoggedIn") !== "true") {
+      // Gunakan fungsi dari db.js untuk proteksi halaman
+      if (typeof checkAuth === "function") {
+        checkAuth();
+      } else if (sessionStorage.getItem("isLoggedIn") !== "true") {
         window.location.href = "login.html";
       }
     </script>
@@ -149,6 +154,7 @@
       async function loadPage(page) {
         const contentArea = document.getElementById("content");
 
+        // Update Active Navigation State
         document.querySelectorAll(".nav-link").forEach((btn) => {
           btn.classList.remove("nav-active");
           if (btn.getAttribute("onclick").includes(`'${page}'`)) {
@@ -157,12 +163,14 @@
         });
 
         try {
+          // Fetch the page content
           const response = await fetch(`${page}.html`);
           if (!response.ok) throw new Error("Halaman tidak ditemukan");
 
           const html = await response.text();
           contentArea.innerHTML = html;
 
+          // Execute scripts within the loaded HTML
           const scripts = contentArea.querySelectorAll("script");
           scripts.forEach((oldScript) => {
             const newScript = document.createElement("script");
@@ -182,7 +190,7 @@
             <div class="flex flex-col items-center justify-center pt-20 text-center">
               <i class="fa fa-circle-exclamation text-4xl text-red-500 mb-4"></i>
               <h2 class="text-xl font-black text-white uppercase">Gagal Memuat Halaman</h2>
-              <p class="text-slate-500 text-sm mt-2">File <b>${page}.html</b> mungkin hilang atau bermasalah.</p>
+              <p class="text-slate-500 text-sm mt-2">File <b>${page}.html</b> mungkin hilang.</p>
               <button onclick="loadPage('dashboard')" class="mt-6 px-6 py-2 bg-blue-600 rounded-lg text-xs font-bold uppercase">Kembali ke Dashboard</button>
             </div>
           `;
@@ -190,10 +198,12 @@
         }
       }
 
+      // Initial Load
       window.onload = () => {
         loadPage("dashboard");
       };
 
+      // Logout Function
       function logout() {
         if (confirm("Apakah anda ingin keluar dari sistem?")) {
           sessionStorage.clear();

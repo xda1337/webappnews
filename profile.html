@@ -32,28 +32,28 @@
   </div>
 
   <div class="grid grid-cols-2 gap-4">
-    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
       <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
         Win Rate
       </p>
       <div class="flex items-end gap-2 mt-1">
-        <span id="win-rate" class="text-lg font-mono font-black text-blue-400"
+        <span id="p-win-rate" class="text-lg font-mono font-black text-blue-400"
           >0%</span
         >
         <div class="w-full bg-slate-800 h-1 rounded-full mb-2 overflow-hidden">
           <div
-            id="win-rate-bar"
-            class="bg-blue-500 h-full"
+            id="p-win-rate-bar"
+            class="bg-blue-500 h-full transition-all duration-1000"
             style="width: 0%"
           ></div>
         </div>
       </div>
     </div>
-    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+    <div class="bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-lg">
       <p class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">
         Total Trades
       </p>
-      <span id="total-trades" class="text-lg font-mono font-black text-white"
+      <span id="p-total-trades" class="text-lg font-mono font-black text-white"
         >0</span
       >
     </div>
@@ -63,19 +63,7 @@
     class="bg-slate-900 rounded-2xl border border-slate-800 p-6 space-y-5 shadow-xl"
   >
     <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
-      <svg
-        class="w-4 h-4 text-blue-500"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-        />
-      </svg>
+      <i class="fa fa-shield-halved text-blue-500 text-xs"></i>
       <h3
         class="text-[10px] font-black uppercase text-slate-300 tracking-widest"
       >
@@ -86,17 +74,17 @@
     <form
       id="passwordForm"
       class="space-y-4"
-      onsubmit="window.updatePassword(event)"
+      onsubmit="handleUpdatePassword(event)"
     >
       <div class="space-y-1">
         <label class="text-[9px] font-bold text-slate-500 uppercase ml-1"
-          >New Password</label
+          >New Master Password</label
         >
         <input
           type="password"
           id="newPassword"
           required
-          placeholder="••••••••"
+          placeholder="ENTER NEW KEY"
           class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm font-mono text-white focus:outline-none focus:border-blue-500 transition-all placeholder:text-slate-800"
         />
       </div>
@@ -113,7 +101,7 @@
 
   <div class="pt-4">
     <button
-      onclick="window.logout()"
+      onclick="handleLogout()"
       class="w-full py-4 border border-red-900/30 rounded-2xl text-[10px] font-black uppercase text-red-500 hover:bg-red-500/5 transition-all tracking-[0.2em]"
     >
       Logout System
@@ -122,8 +110,8 @@
 </div>
 
 <script>
-  // Fungsi Update Password yang sudah diperbaiki
-  window.updatePassword = async (e) => {
+  // Fungsi Update Password Lokal
+  function handleUpdatePassword(e) {
     e.preventDefault();
     const newPass = document.getElementById("newPassword").value;
     const btn = document.getElementById("btnUpdate");
@@ -134,56 +122,67 @@
     btn.disabled = true;
 
     try {
-      const res = await fetch("/api/update-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: newPass }),
-      });
+      // Ambil data lama dari LocalStorage (via db.js)
+      const db = getData();
 
-      if (res.ok) {
-        alert("Password Berhasil Diperbarui!");
+      // Update password di objek profile
+      db.profile.password = newPass;
+
+      // Simpan kembali (via db.js)
+      saveData(db);
+
+      setTimeout(() => {
+        alert("Password Berhasil Diperbarui Secara Lokal!");
         document.getElementById("newPassword").value = "";
-      } else {
-        alert("Gagal memperbarui password. Coba lagi nanti.");
-      }
+        btn.innerText = "UPDATE PASSWORD NOW";
+        btn.disabled = false;
+      }, 500);
     } catch (error) {
       console.error("Error:", error);
-      alert("Terjadi kesalahan koneksi.");
-    } finally {
-      btn.innerText = "UPDATE PASSWORD NOW";
+      alert("Terjadi kesalahan sistem.");
       btn.disabled = false;
     }
-  };
+  }
 
-  window.logout = () => {
+  // Fungsi Logout
+  function handleLogout() {
     if (confirm("Apakah anda yakin ingin keluar dari HansFX?")) {
+      sessionStorage.clear();
       window.location.href = "./login.html";
     }
-  };
+  }
 
-  // Memuat Statistik secara dinamis agar halaman tidak kosong
-  window.loadProfileStats = async () => {
+  // Load Stats dari LocalStorage
+  function loadProfileStats() {
     try {
-      const res = await fetch("journal.json");
-      const db = await res.json();
-
+      const db = getData(); // Panggil fungsi global dari db.js
       const total = db.trades.length;
-      document.getElementById("total-trades").innerText = total;
+
+      document.getElementById("p-total-trades").innerText = total;
 
       if (total > 0) {
         const wins = db.trades.filter((t) => {
           const diff = t.type === "BUY" ? t.close - t.entry : t.entry - t.close;
-          return diff > 0;
+          const net =
+            diff * t.lot * 100 +
+            (parseFloat(t.swap) || 0) -
+            (parseFloat(t.komisi) || 0);
+          return net >= 0;
         }).length;
 
         const rate = Math.round((wins / total) * 100);
-        document.getElementById("win-rate").innerText = `${rate}%`;
-        document.getElementById("win-rate-bar").style.width = `${rate}%`;
+        document.getElementById("p-win-rate").innerText = `${rate}%`;
+
+        // Animasi bar setelah sedikit delay
+        setTimeout(() => {
+          document.getElementById("p-win-rate-bar").style.width = `${rate}%`;
+        }, 300);
       }
     } catch (e) {
       console.error("Error loading stats:", e);
     }
-  };
+  }
 
-  window.loadProfileStats();
+  // Jalankan load stats saat halaman dimuat
+  loadProfileStats();
 </script>
