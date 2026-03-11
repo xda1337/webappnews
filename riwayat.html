@@ -116,7 +116,7 @@
         id="sum-wd"
         class="text-xl md:text-2xl font-mono font-black text-orange-500 tabular-nums truncate"
       >
-        $0.00
+        -$0.00
       </h3>
     </div>
 
@@ -153,12 +153,12 @@
             <th
               class="p-6 border-b border-white/5 text-center hidden md:table-cell"
             >
-              Pricing (In/Out)
+              Pricing & Delta
             </th>
             <th
               class="p-6 border-b border-white/5 text-center hidden lg:table-cell"
             >
-              Fees
+              Fees/Rollover
             </th>
             <th class="p-6 border-b border-white/5 text-right">Settlement</th>
             <th class="p-6 border-b border-white/5 text-center">Action</th>
@@ -223,7 +223,6 @@
       window.renderTable();
     };
 
-    // Fungsi Toggle Dropdown Mobile
     window.toggleDetail = (id) => {
       const el = document.getElementById(id);
       const icon = document.getElementById("icon-" + id);
@@ -343,66 +342,72 @@
         const rowId = `detail-${i}`;
 
         if (item.source === "trade") {
-          const diff =
+          const rawDiff =
             item.type === "BUY"
               ? item.close - item.entry
               : item.entry - item.close;
+          const pips = (rawDiff * 100).toFixed(1); // Estimasi pips untuk Gold (XAUUSD)
           const net =
-            diff * item.lot * 100 +
+            rawDiff * item.lot * 100 +
             (parseFloat(item.swap) || 0) -
             (parseFloat(item.komisi) || 0);
 
           body.innerHTML += `
-            <tr onclick="window.toggleDetail('${rowId}')" class="hover:bg-white/[0.02] cursor-pointer transition-colors border-b border-white/5">
+            <tr onclick="window.toggleDetail('${rowId}')" class="hover:bg-white/[0.02] cursor-pointer transition-colors border-b border-white/5 group">
               <td class="p-4 md:p-6">
                 <div class="flex items-center gap-3">
-                  <div class="w-1 h-8 ${item.type === "BUY" ? "bg-green-500" : "bg-red-500"} rounded-full"></div>
+                  <div class="w-1 h-10 ${item.type === "BUY" ? "bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"} rounded-full"></div>
                   <div>
                     <p class="text-white font-black text-xs md:text-sm uppercase flex items-center gap-2">
-                      ${item.pair} <i id="icon-${rowId}" class="fa fa-chevron-down text-[8px] text-slate-600 md:hidden transition-transform"></i>
+                      ${item.pair} <span class="text-[8px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">${item.lot} LOT</span>
+                      <i id="icon-${rowId}" class="fa fa-chevron-down text-[8px] text-slate-600 md:hidden transition-transform"></i>
                     </p>
-                    <p class="text-[9px] text-slate-500 font-bold mt-1">${d} • <span class="${item.type === "BUY" ? "text-green-500" : "text-red-500"}">${item.type}</span></p>
+                    <p class="text-[9px] text-slate-500 font-bold mt-1 uppercase tracking-tighter">
+                      ${d} • <span class="${item.type === "BUY" ? "text-green-500" : "text-red-500"} italic font-black">${item.type}</span>
+                    </p>
                   </div>
                 </div>
               </td>
               <td class="p-6 text-center hidden md:table-cell">
                 <div class="inline-block text-left">
-                  <p class="text-[10px] text-slate-400 font-bold">IN: ${item.entry.toFixed(5)}</p>
-                  <p class="text-[10px] text-blue-400 font-bold">OUT: ${item.close.toFixed(5)}</p>
+                  <p class="text-[10px] text-slate-400 font-bold tracking-tight">ENTRY: ${item.entry.toFixed(2)}</p>
+                  <p class="text-[10px] text-blue-400 font-bold tracking-tight">EXIT: ${item.close.toFixed(2)}</p>
                 </div>
               </td>
               <td class="p-6 text-center hidden lg:table-cell">
-                <p class="text-[9px] text-slate-500 uppercase font-black">Swap: <span class="text-slate-300">${item.swap}</span></p>
-                <p class="text-[9px] text-slate-500 uppercase font-black">Fee: <span class="text-slate-300">-${item.komisi}</span></p>
+                <div class="space-y-1">
+                  <p class="text-[9px] text-slate-500 uppercase font-black">Swap: <span class="${item.swap >= 0 ? "text-green-500" : "text-slate-300"}">${item.swap}</span></p>
+                  <p class="text-[9px] text-slate-500 uppercase font-black">Comm: <span class="text-red-400">-${item.komisi}</span></p>
+                </div>
               </td>
               <td class="p-4 md:p-6 text-right">
                 <p class="font-black text-xs md:text-sm ${net >= 0 ? "text-green-400" : "text-red-500"}">${net >= 0 ? "+" : ""}${net.toFixed(2)}</p>
-                <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
+                <p class="text-[8px] text-slate-600 font-black uppercase tracking-widest">${pips > 0 ? "+" : ""}${pips} Pips Delta</p>
               </td>
               <td class="p-4 md:p-6 text-center">
-                <button onclick="event.stopPropagation(); window.hapusItem('trade', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 text-slate-500 hover:text-white transition-all">
+                <button onclick="event.stopPropagation(); window.hapusItem('trade', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:border-red-500 text-slate-500 hover:text-white transition-all active:scale-90">
                   <i class="fa fa-trash-alt text-[10px]"></i>
                 </button>
               </td>
             </tr>
-            <tr id="${rowId}" class="hidden md:hidden bg-slate-900/50 border-b border-white/5">
+            <tr id="${rowId}" class="hidden md:hidden bg-slate-900/40 border-b border-white/5">
               <td colspan="5" class="p-5">
-                <div class="grid grid-cols-2 gap-4">
-                  <div class="space-y-1">
-                    <p class="text-[8px] font-black text-slate-500 uppercase">Entry Price</p>
-                    <p class="text-xs font-bold text-white">${item.entry.toFixed(5)}</p>
+                <div class="grid grid-cols-2 gap-y-4 gap-x-6 bg-black/20 p-4 rounded-2xl border border-white/5">
+                  <div>
+                    <p class="text-[8px] font-black text-slate-600 uppercase mb-1">Execution Price</p>
+                    <p class="text-xs font-bold text-white">${item.entry.toFixed(2)} <span class="text-blue-500">→</span> ${item.close.toFixed(2)}</p>
                   </div>
-                  <div class="space-y-1">
-                    <p class="text-[8px] font-black text-slate-500 uppercase">Exit Price</p>
-                    <p class="text-xs font-bold text-blue-400">${item.close.toFixed(5)}</p>
+                  <div>
+                    <p class="text-[8px] font-black text-slate-600 uppercase mb-1">Market Delta</p>
+                    <p class="text-xs font-bold ${rawDiff >= 0 ? "text-green-500" : "text-red-500"}">${pips} Points</p>
                   </div>
-                  <div class="space-y-1">
-                    <p class="text-[8px] font-black text-slate-500 uppercase">Swap / Rollover</p>
-                    <p class="text-xs font-bold ${item.swap >= 0 ? "text-green-500" : "text-red-500"}">${item.swap}</p>
+                  <div>
+                    <p class="text-[8px] font-black text-slate-600 uppercase mb-1">Swap / Rollover</p>
+                    <p class="text-xs font-bold text-slate-300">$${item.swap}</p>
                   </div>
-                  <div class="space-y-1">
-                    <p class="text-[8px] font-black text-slate-500 uppercase">Broker Commission</p>
-                    <p class="text-xs font-bold text-slate-300">-${item.komisi}</p>
+                  <div>
+                    <p class="text-[8px] font-black text-slate-600 uppercase mb-1">Commission</p>
+                    <p class="text-xs font-bold text-red-400">-$${item.komisi}</p>
                   </div>
                 </div>
               </td>
@@ -410,26 +415,26 @@
         } else {
           const isDepo = item.type === "DEPOSIT";
           body.innerHTML += `
-            <tr class="bg-blue-500/[0.03] border-b border-white/5">
+            <tr class="bg-blue-500/[0.02] border-b border-white/5">
               <td class="p-4 md:p-6">
                 <div class="flex items-center gap-3">
-                  <div class="w-1 h-8 ${isDepo ? "bg-blue-500" : "bg-orange-500"} rounded-full"></div>
+                  <div class="w-1 h-10 ${isDepo ? "bg-blue-500" : "bg-orange-500"} rounded-full"></div>
                   <div>
-                    <p class="text-blue-400 font-black text-xs md:text-sm uppercase italic">CASH ${item.type}</p>
-                    <p class="text-[9px] text-slate-500 font-bold mt-1">${d}</p>
+                    <p class="${isDepo ? "text-blue-400" : "text-orange-400"} font-black text-xs md:text-sm uppercase italic tracking-tighter">CASH ${item.type}</p>
+                    <p class="text-[9px] text-slate-500 font-bold mt-1 uppercase">${d}</p>
                   </div>
                 </div>
               </td>
-              <td class="p-6 text-center hidden md:table-cell text-[9px] text-slate-600 font-black uppercase italic">Capital Adjustment</td>
-              <td class="p-6 text-center hidden lg:table-cell text-[9px] text-slate-600 font-black">---</td>
+              <td class="p-6 text-center hidden md:table-cell text-[9px] text-slate-600 font-black uppercase italic tracking-[0.2em]">Institutional Balance Adjustment</td>
+              <td class="p-6 text-center hidden lg:table-cell text-[9px] text-slate-700 font-black tracking-widest">NO_FEE_LOGGED</td>
               <td class="p-4 md:p-6 text-right">
                 <p class="font-black text-xs md:text-sm ${isDepo ? "text-blue-400" : "text-orange-400"}">
                   ${isDepo ? "+" : "-"}${parseFloat(item.amount).toFixed(2)}
                 </p>
-                <p class="text-[8px] text-slate-600 font-black uppercase">Balance Flux</p>
+                <p class="text-[8px] text-slate-600 font-black uppercase">Net Balance Flux</p>
               </td>
               <td class="p-4 md:p-6 text-center">
-                <button onclick="window.hapusItem('balance', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 text-slate-500 hover:text-white transition-all">
+                <button onclick="window.hapusItem('balance', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:border-red-500 text-slate-500 hover:text-white transition-all active:scale-90">
                   <i class="fa fa-trash-alt text-[10px]"></i>
                 </button>
               </td>
@@ -447,11 +452,12 @@
     window.hapusItem = (type, originalIdx) => {
       Swal.fire({
         ...AlertStyle,
-        title: "Delete Record?",
-        text: "This action will permanently adjust your portfolio valuation.",
+        title: "DANGER ZONE",
+        text: "This action will permanently erase this record from the history ledger. Proceed?",
         icon: "warning",
         showCancelButton: true,
-        confirmButtonText: "Confirm Delete",
+        confirmButtonText: "CONFIRM DELETE",
+        cancelButtonText: "ABORT",
       }).then((result) => {
         if (result.isConfirmed) {
           const db = getData();
