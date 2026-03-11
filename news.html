@@ -361,37 +361,66 @@
         );
       }
 
-      function renderStrength() {
-        const data = [
-          { name: "USD", val: 88, color: "bg-blue-500" },
-          { name: "EUR", val: 42, color: "bg-indigo-400" },
-          { name: "JPY", val: 15, color: "bg-red-500" },
-          { name: "GBP", val: 65, color: "bg-emerald-500" },
-        ];
+      async function renderStrength() {
         const container = document.getElementById("strength-meter");
-        container.innerHTML = data
-          .map(
-            (c) => `
+        // Tampilkan loading sebentar
+        container.innerHTML = `<p class="text-[10px] text-slate-500 animate-pulse">FETCHING GLOBAL DATA...</p>`;
+
+        try {
+          // Mengambil data kurs terbaru terhadap USD (Gratis & Tanpa Key untuk demo ini)
+          const response = await fetch("https://open.er-api.com/v6/latest/USD");
+          const result = await response.json();
+          const rates = result.rates;
+
+          // Logika sederhana: Kita hitung kekuatan berdasarkan fluktuasi/posisi angka
+          // Di aplikasi nyata, Anda butuh data "Daily Change %"
+          // Ini adalah simulasi pembentukan bar berdasarkan data kurs realtime
+          const currencies = [
+            { name: "USD", val: 50, color: "bg-blue-500" }, // Base
+            {
+              name: "EUR",
+              val: Math.min(Math.max((1 / rates.EUR) * 50, 10), 95),
+              color: "bg-indigo-400",
+            },
+            {
+              name: "JPY",
+              val: Math.min(Math.max(rates.JPY / 2, 10), 95),
+              color: "bg-red-500",
+            },
+            {
+              name: "GBP",
+              val: Math.min(Math.max((1 / rates.GBP) * 55, 10), 95),
+              color: "bg-emerald-500",
+            },
+          ];
+
+          container.innerHTML = currencies
+            .map(
+              (c) => `
           <div>
             <div class="flex justify-between items-center mb-2">
               <span class="text-[10px] font-black text-white tracking-widest">${c.name}</span>
-              <span class="text-[9px] font-mono font-bold text-slate-400">${c.val}%</span>
+              <span class="text-[9px] font-mono font-bold text-slate-400">${c.val.toFixed(1)}%</span>
             </div>
             <div class="w-full bg-slate-800/50 h-1.5 rounded-full overflow-hidden p-[1px]">
-              <div class="${c.color} h-full rounded-full transition-all duration-[2000ms]" style="width: 0%" id="strength-${c.name}"></div>
+              <div class="${c.color} h-full rounded-full transition-all duration-[2000ms]" 
+                   style="width: 0%" id="strength-${c.name}"></div>
             </div>
           </div>`,
-          )
-          .join("");
+            )
+            .join("");
 
-        setTimeout(
-          () =>
-            data.forEach((c) => {
+          // Trigger animasi bar
+          setTimeout(() => {
+            currencies.forEach((c) => {
               const el = document.getElementById(`strength-${c.name}`);
               if (el) el.style.width = c.val + "%";
-            }),
-          100,
-        );
+            });
+          }, 100);
+        } catch (error) {
+          container.innerHTML = `<p class="text-[10px] text-red-500">FAILED TO LOAD DATA</p>`;
+          console.error("Error fetching strength:", error);
+        }
       }
 
       function initNewsTerminal() {
