@@ -145,7 +145,6 @@
       <div class="h-[1px] flex-grow mx-4 bg-slate-800"></div>
       <i class="fa-solid fa-list-ul text-slate-600 text-[10px]"></i>
     </div>
-
     <div id="recent-logs" class="space-y-3 px-1"></div>
   </div>
 </div>
@@ -164,11 +163,44 @@
       },
     };
 
-    window.loadWalletData = () => {
+    // FUNGSI UTAMA: Sinkronisasi dan Hitung Ulang Saldo
+    window.syncAndLoadWallet = () => {
       const db = getData();
-      const balance = parseFloat(db.profile.balance) || 0;
+      let calculatedBalance = 0;
 
-      const formatted = balance.toLocaleString("en-US", {
+      // 1. Hitung dari riwayat Deposit/Withdraw (logs)
+      if (db.logs && db.logs.length > 0) {
+        db.logs.forEach((log) => {
+          const amt = parseFloat(log.amount) || 0;
+          calculatedBalance += log.type === "DEPOSIT" ? amt : -amt;
+        });
+      }
+
+      // 2. Hitung dari riwayat Trading (trades)
+      if (db.trades && db.trades.length > 0) {
+        db.trades.forEach((trade) => {
+          const entry = parseFloat(trade.entry) || 0;
+          const close = parseFloat(trade.close) || 0;
+          const lot = parseFloat(trade.lot) || 0;
+          const swap = parseFloat(trade.swap) || 0;
+          const komisi = parseFloat(trade.komisi) || 0;
+
+          let pnl = 0;
+          if (trade.type === "BUY") {
+            pnl = (close - entry) * lot * 100;
+          } else {
+            pnl = (entry - close) * lot * 100;
+          }
+          calculatedBalance += pnl + swap - komisi;
+        });
+      }
+
+      // Update balance di profile database agar sinkron secara global
+      db.profile.balance = calculatedBalance;
+      saveData(db);
+
+      // Render ke UI
+      const formatted = calculatedBalance.toLocaleString("en-US", {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
       });
@@ -205,32 +237,29 @@
             });
 
           container.innerHTML += `
-            <div class="group bg-slate-900/40 border border-slate-800/50 p-5 md:p-6 rounded-[1.8rem] flex justify-between items-center transition-all hover:bg-slate-800">
-              <div class="flex items-center gap-4 md:gap-5 min-w-0">
-                <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex-shrink-0 ${isDepo ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"} flex items-center justify-center text-base md:text-lg">
-                  <i class="fa-solid ${isDepo ? "fa-arrow-down-long" : "fa-arrow-up-long"}"></i>
-                </div>
-                <div class="min-w-0">
-                  <p class="text-[11px] md:text-xs font-black uppercase text-white tracking-widest">${log.type}</p>
-                  <p class="text-[8px] md:text-[9px] text-slate-500 font-bold mt-1 uppercase truncate">${formattedDate}</p>
-                </div>
+          <div class="group bg-slate-900/40 border border-slate-800/50 p-5 md:p-6 rounded-[1.8rem] flex justify-between items-center transition-all hover:bg-slate-800">
+            <div class="flex items-center gap-4 md:gap-5 min-w-0">
+              <div class="w-10 h-10 md:w-12 md:h-12 rounded-2xl flex-shrink-0 ${isDepo ? "bg-green-500/10 text-green-500" : "bg-red-500/10 text-red-500"} flex items-center justify-center text-base md:text-lg">
+                <i class="fa-solid ${isDepo ? "fa-arrow-down-long" : "fa-arrow-up-long"}"></i>
               </div>
-              <div class="text-right ml-4">
-                <p class="text-base md:text-lg font-mono font-black ${isDepo ? "text-green-400" : "text-red-400"}">
-                  ${isDepo ? "+" : "-"}$${parseFloat(log.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </p>
-                <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
+              <div class="min-w-0">
+                <p class="text-[11px] md:text-xs font-black uppercase text-white tracking-widest">${log.type}</p>
+                <p class="text-[8px] md:text-[9px] text-slate-500 font-bold mt-1 uppercase truncate">${formattedDate}</p>
               </div>
-            </div>`;
+            </div>
+            <div class="text-right ml-4">
+              <p class="text-base md:text-lg font-mono font-black ${isDepo ? "text-green-400" : "text-red-400"}">
+                ${isDepo ? "+" : "-"}$${parseFloat(log.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              </p>
+              <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
+            </div>
+          </div>`;
         });
     }
 
     window.executeTransaction = async (type) => {
       const input = document.getElementById("amount-input");
       const amount = parseFloat(input.value);
-      const db = getData();
-      let currentBalance = parseFloat(db.profile.balance) || 0;
-
       if (!amount || amount <= 0) {
         return Swal.fire({
           ...StyledAlert,
@@ -239,12 +268,16 @@
         });
       }
 
-      if (type === "WITHDRAW" && amount > currentBalance) {
+      const db = getData();
+      if (
+        type === "WITHDRAW" &&
+        amount > (parseFloat(db.profile.balance) || 0)
+      ) {
         return Swal.fire({
           ...StyledAlert,
           icon: "error",
           title: "Low Balance",
-          text: "Insufficient funds for this withdrawal.",
+          text: "Insufficient funds.",
         });
       }
 
@@ -254,21 +287,13 @@
         text: `Authorize $${amount.toLocaleString()} transaction?`,
         showCancelButton: true,
         confirmButtonText: "Authorize",
-        icon: "info", // FontAwesome shield-check requires special setup in SWAL, 'info' is safer
+        icon: "info",
       });
 
       if (!confirm.isConfirmed) return;
 
-      // Update Database
-      db.profile.balance =
-        type === "DEPOSIT" ? currentBalance + amount : currentBalance - amount;
-
       if (!db.logs) db.logs = [];
-      db.logs.push({
-        type: type,
-        amount: amount,
-        date: new Date().toISOString(),
-      });
+      db.logs.push({ type, amount, date: new Date().toISOString() });
 
       saveData(db);
       input.value = "";
@@ -280,9 +305,12 @@
         timer: 1500,
         showConfirmButton: false,
       });
-      loadWalletData();
+
+      // Jalankan hitung ulang setelah transaksi baru
+      syncAndLoadWallet();
     };
 
-    loadWalletData();
+    // Inisialisasi saat halaman dibuka
+    syncAndLoadWallet();
   })();
 </script>
