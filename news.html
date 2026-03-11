@@ -56,12 +56,10 @@
         }
       }
 
-      .no-scrollbar::-webkit-scrollbar {
-        display: none;
-      }
-      .no-scrollbar {
-        -ms-overflow-style: none;
-        scrollbar-width: none;
+      /* Custom Scrollbar for Dropdown */
+      select option {
+        background: #0f172a;
+        color: #94a3b8;
       }
     </style>
   </head>
@@ -218,16 +216,55 @@
               >
                 Technical Gauge
               </p>
+
               <select
                 id="gauge-selector"
                 onchange="updateGauge(this.value)"
-                class="w-full bg-slate-900 border border-slate-700/50 rounded-xl text-[11px] font-black uppercase p-3 text-blue-400 outline-none focus:border-blue-500 cursor-pointer"
+                class="w-full bg-slate-900 border border-slate-700/50 rounded-xl text-[11px] font-black uppercase p-3 text-blue-400 outline-none focus:border-blue-500 cursor-pointer shadow-inner"
               >
-                <option value="OANDA:XAUUSD">GOLD (XAUUSD)</option>
-                <option value="FX:EURUSD">EURUSD</option>
-                <option value="FX:GBPUSD">GBPUSD</option>
-                <option value="BINANCE:BTCUSDT">BITCOIN (BTC)</option>
-                <option value="FX:USDJPY">USDJPY</option>
+                <optgroup label="COMMODITIES & METALS">
+                  <option value="OANDA:XAUUSD" selected>GOLD (XAUUSD)</option>
+                  <option value="OANDA:XAGUSD">SILVER (XAGUSD)</option>
+                  <option value="TVC:USOIL">WTI CRUDE OIL</option>
+                  <option value="TVC:UKOIL">BRENT OIL</option>
+                  <option value="TVC:NGAS">NATURAL GAS</option>
+                  <option value="OANDA:XCUUSD">COPPER</option>
+                </optgroup>
+                <optgroup label="FOREX MAJORS">
+                  <option value="FX:EURUSD">EURUSD</option>
+                  <option value="FX:GBPUSD">GBPUSD</option>
+                  <option value="FX:USDJPY">USDJPY</option>
+                  <option value="FX:USDCHF">USDCHF</option>
+                  <option value="FX:AUDUSD">AUDUSD</option>
+                  <option value="FX:USDCAD">USDCAD</option>
+                  <option value="FX:NZDUSD">NZDUSD</option>
+                </optgroup>
+                <optgroup label="FOREX CROSSES">
+                  <option value="FX:GBPJPY">GBPJPY</option>
+                  <option value="FX:EURJPY">EURJPY</option>
+                  <option value="FX:EURGBP">EURGBP</option>
+                  <option value="FX:EURAUD">EURAUD</option>
+                  <option value="FX:GBPAUD">GBPAUD</option>
+                  <option value="FX:AUDJPY">AUDJPY</option>
+                  <option value="FX:CHFJPY">CHFJPY</option>
+                </optgroup>
+                <optgroup label="CRYPTO ASSETS">
+                  <option value="BINANCE:BTCUSDT">BITCOIN (BTC)</option>
+                  <option value="BINANCE:ETHUSDT">ETHEREUM (ETH)</option>
+                  <option value="BINANCE:SOLUSDT">SOLANA (SOL)</option>
+                  <option value="BINANCE:BNBUSDT">BINANCE (BNB)</option>
+                  <option value="BINANCE:XRPUSDT">RIPPLE (XRP)</option>
+                  <option value="BINANCE:DOGEUSDT">DOGE</option>
+                  <option value="BINANCE:ADAUSDT">CARDANO</option>
+                  <option value="BINANCE:AVAXUSDT">AVALANCHE</option>
+                </optgroup>
+                <optgroup label="WORLD INDICES">
+                  <option value="CURRENCYCOM:US100">NASDAQ 100</option>
+                  <option value="CURRENCYCOM:US500">S&P 500</option>
+                  <option value="CURRENCYCOM:US30">DOW 30</option>
+                  <option value="CURRENCYCOM:JP225">NIKKEI 225</option>
+                  <option value="CURRENCYCOM:DE40">DAX 40</option>
+                </optgroup>
               </select>
             </div>
             <div id="tv-tech-gauge" class="flex-grow"></div>
@@ -239,8 +276,9 @@
             >
               <span
                 class="p-2 bg-blue-500/10 rounded-xl border border-blue-500/20"
-                ><i class="fa fa-fire text-blue-500"></i
-              ></span>
+              >
+                <i class="fa fa-fire text-blue-500"></i>
+              </span>
               Relative Strength
             </h4>
             <div id="strength-meter" class="space-y-6"></div>
@@ -342,22 +380,20 @@
             <div class="w-full bg-slate-800/50 h-1.5 rounded-full overflow-hidden p-[1px]">
               <div class="${c.color} h-full rounded-full transition-all duration-[2000ms]" style="width: 0%" id="strength-${c.name}"></div>
             </div>
-          </div>
-        `,
+          </div>`,
           )
           .join("");
+
         setTimeout(
           () =>
-            data.forEach(
-              (c) =>
-                (document.getElementById(`strength-${c.name}`).style.width =
-                  c.val + "%"),
-            ),
+            data.forEach((c) => {
+              const el = document.getElementById(`strength-${c.name}`);
+              if (el) el.style.width = c.val + "%";
+            }),
           100,
         );
       }
 
-      // Fungsi inisialisasi yang bisa dipanggil berulang kali
       function initNewsTerminal() {
         startClock();
         updateNews("all_symbols");
@@ -382,11 +418,49 @@
                   { s: "FX:GBPUSD" },
                   { s: "FX:USDJPY" },
                   { s: "OANDA:XAUUSD" },
+                  { s: "OANDA:GBPJPY" },
+                  { s: "OANDA:AUDUSD" },
+                  { s: "OANDA:USDCAD" },
+                  { s: "OANDA:SGDJPY" },
+                  { s: "OANDA:XAGUSD" },
+                  { s: "OANDA:EURDKK" },
+                  { s: "OANDA:TRYJPY" },
                 ],
               },
               {
                 title: "Crypto",
-                symbols: [{ s: "BINANCE:BTCUSDT" }, { s: "BINANCE:ETHUSDT" }],
+                symbols: [
+                  { s: "BINANCE:BTCUSDT" },
+                  { s: "BINANCE:BTCUSDT.P" },
+                  { s: "BINANCE:ETHUSDT" },
+                  { s: "BINANCE:SOLUSDT" },
+                  { s: "BINANCE:SOLUSDT.P" },
+                  { s: "BINANCE:BTCUSD" },
+                  { s: "BINANCE:XRPUSDT" },
+                  { s: "BINANCE:DOGEUSDT" },
+                  { s: "BINANCE:BNBUSDT" },
+                  { s: "BINANCE:ADAUSDT" },
+                  { s: "BINANCE:ETHBTC" },
+                  { s: "BINANCE:SUIUSDT" },
+                  { s: "BINANCE:AVAXUSDT" },
+                ],
+              },
+              {
+                title: "Stocks",
+                symbols: [
+                  { s: "NASDAQ:NVDA" },
+                  { s: "NASDAQ:TSLA" },
+                  { s: "NASDAQ:AAPL" },
+                  { s: "NASDAQ:MSFT" },
+                  { s: "NASDAQ:PLTR" },
+                  { s: "NASDAQ:AMD" },
+                  { s: "NASDAQ:META" },
+                  { s: "NASDAQ:NFLX" },
+                  { s: "NYSE:ORCL" },
+                  { s: "NASDAQ:MU" },
+                  { s: "NASDAQ:GOOGL" },
+                  { s: "NASDAQ:MSTR" },
+                ],
               },
             ],
           },
@@ -406,7 +480,6 @@
         );
       }
 
-      // Jalankan inisialisasi
       if (
         document.readyState === "complete" ||
         document.readyState === "interactive"
