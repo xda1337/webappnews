@@ -144,7 +144,7 @@
     class="bg-slate-950/50 rounded-[2.5rem] border border-white/5 shadow-2xl backdrop-blur-2xl mx-1 overflow-hidden"
   >
     <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
+      <table class="w-full text-left border-separate border-spacing-0">
         <thead>
           <tr
             class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-black tracking-[0.2em]"
@@ -160,16 +160,11 @@
             >
               Fees
             </th>
-            <th class="p-6 border-b border-white/5 text-right">
-              PnL Settlement
-            </th>
+            <th class="p-6 border-b border-white/5 text-right">Settlement</th>
             <th class="p-6 border-b border-white/5 text-center">Action</th>
           </tr>
         </thead>
-        <tbody
-          id="history-body"
-          class="divide-y divide-white/5 font-mono text-slate-300"
-        ></tbody>
+        <tbody id="history-body" class="font-mono text-slate-300"></tbody>
       </table>
     </div>
 
@@ -228,23 +223,32 @@
       window.renderTable();
     };
 
+    // Fungsi Toggle Dropdown Mobile
+    window.toggleDetail = (id) => {
+      const el = document.getElementById(id);
+      const icon = document.getElementById("icon-" + id);
+      if (el.classList.contains("hidden")) {
+        el.classList.remove("hidden");
+        if (icon) icon.style.transform = "rotate(180deg)";
+      } else {
+        el.classList.add("hidden");
+        if (icon) icon.style.transform = "rotate(0deg)";
+      }
+    };
+
     window.prosesFilterRiwayat = function () {
       const db = getData();
       const range = document.getElementById("rangeFilter").value;
-
       let tGross = 0,
         tDepo = 0,
         tWD = 0,
         tSwap = 0,
-        tKomisi = 0;
-      let totalCalculatedBalance = 0;
+        tKomisi = 0,
+        totalCalculatedBalance = 0;
 
-      // 1. Calculate Absolute Final Balance (Universal)
       (db.logs || []).forEach((l) => {
         totalCalculatedBalance +=
-          l.type === "DEPOSIT"
-            ? parseFloat(l.amount) || 0
-            : -(parseFloat(l.amount) || 0);
+          l.type === "DEPOSIT" ? parseFloat(l.amount) : -parseFloat(l.amount);
       });
       (db.trades || []).forEach((t) => {
         const diff = t.type === "BUY" ? t.close - t.entry : t.entry - t.close;
@@ -254,7 +258,6 @@
           (parseFloat(t.komisi) || 0);
       });
 
-      // 2. Prepare Data for Table
       const combined = [
         ...(db.trades || []).map((t, idx) => ({
           ...t,
@@ -299,16 +302,14 @@
             tSwap += parseFloat(item.swap) || 0;
             tKomisi += parseFloat(item.komisi) || 0;
           } else {
-            if (item.type === "DEPOSIT") tDepo += parseFloat(item.amount) || 0;
-            else tWD += parseFloat(item.amount) || 0;
+            if (item.type === "DEPOSIT") tDepo += parseFloat(item.amount);
+            else tWD += parseFloat(item.amount);
           }
         }
         return match;
       });
 
       const displayProfit = tGross + tSwap - tKomisi;
-
-      // Update Stats UI
       const profEl = document.getElementById("sum-profit");
       profEl.innerText = `${displayProfit >= 0 ? "+" : ""}$${displayProfit.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
       profEl.className = `text-xl md:text-2xl font-mono font-black tabular-nums truncate ${displayProfit >= 0 ? "text-green-400" : "text-red-500"}`;
@@ -329,17 +330,17 @@
       const body = document.getElementById("history-body");
       body.innerHTML = "";
       const totalPages = Math.ceil(filteredData.length / rowsPerPage) || 1;
-      if (window.currentPage > totalPages) window.currentPage = totalPages;
       const start = (window.currentPage - 1) * rowsPerPage;
       const paginatedItems = filteredData.slice(start, start + rowsPerPage);
 
-      paginatedItems.forEach((item) => {
+      paginatedItems.forEach((item, i) => {
         const d = new Date(item.date).toLocaleString("id-ID", {
           day: "2-digit",
           month: "short",
           hour: "2-digit",
           minute: "2-digit",
         });
+        const rowId = `detail-${i}`;
 
         if (item.source === "trade") {
           const diff =
@@ -352,44 +353,65 @@
             (parseFloat(item.komisi) || 0);
 
           body.innerHTML += `
-            <tr class="hover:bg-white/[0.02] transition-colors group border-b border-white/5">
-              <td class="p-6">
+            <tr onclick="window.toggleDetail('${rowId}')" class="hover:bg-white/[0.02] cursor-pointer transition-colors border-b border-white/5">
+              <td class="p-4 md:p-6">
                 <div class="flex items-center gap-3">
                   <div class="w-1 h-8 ${item.type === "BUY" ? "bg-green-500" : "bg-red-500"} rounded-full"></div>
                   <div>
-                    <p class="text-white font-black text-xs md:text-sm uppercase">${item.pair}</p>
-                    <p class="text-[9px] text-slate-500 font-bold mt-1">${d} • <span class="${item.type === "BUY" ? "text-green-500" : "text-red-500"}">${item.type} ${item.lot.toFixed(2)}</span></p>
+                    <p class="text-white font-black text-xs md:text-sm uppercase flex items-center gap-2">
+                      ${item.pair} <i id="icon-${rowId}" class="fa fa-chevron-down text-[8px] text-slate-600 md:hidden transition-transform"></i>
+                    </p>
+                    <p class="text-[9px] text-slate-500 font-bold mt-1">${d} • <span class="${item.type === "BUY" ? "text-green-500" : "text-red-500"}">${item.type}</span></p>
                   </div>
                 </div>
               </td>
               <td class="p-6 text-center hidden md:table-cell">
                 <div class="inline-block text-left">
-                  <p class="text-[10px] text-slate-400 font-bold"><i class="fa fa-sign-in-alt mr-1"></i>${item.entry.toFixed(5)}</p>
-                  <p class="text-[10px] text-blue-400 font-bold"><i class="fa fa-sign-out-alt mr-1"></i>${item.close.toFixed(5)}</p>
+                  <p class="text-[10px] text-slate-400 font-bold">IN: ${item.entry.toFixed(5)}</p>
+                  <p class="text-[10px] text-blue-400 font-bold">OUT: ${item.close.toFixed(5)}</p>
                 </div>
               </td>
               <td class="p-6 text-center hidden lg:table-cell">
-                <p class="text-[9px] text-slate-500 uppercase font-black">Swap: <span class="text-slate-300">${item.swap >= 0 ? "+" : ""}${item.swap}</span></p>
+                <p class="text-[9px] text-slate-500 uppercase font-black">Swap: <span class="text-slate-300">${item.swap}</span></p>
                 <p class="text-[9px] text-slate-500 uppercase font-black">Fee: <span class="text-slate-300">-${item.komisi}</span></p>
               </td>
-              <td class="p-6 text-right">
-                <p class="font-black text-xs md:text-sm ${net >= 0 ? "text-green-400" : "text-red-500"}">
-                  ${net >= 0 ? "+" : ""}${net.toLocaleString("en-US", { minimumFractionDigits: 2 })}
-                </p>
+              <td class="p-4 md:p-6 text-right">
+                <p class="font-black text-xs md:text-sm ${net >= 0 ? "text-green-400" : "text-red-500"}">${net >= 0 ? "+" : ""}${net.toFixed(2)}</p>
                 <p class="text-[8px] text-slate-600 font-black uppercase">Settled</p>
               </td>
-              <td class="p-6 text-center">
-                <button onclick="window.hapusItem('trade', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500">
+              <td class="p-4 md:p-6 text-center">
+                <button onclick="event.stopPropagation(); window.hapusItem('trade', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 text-slate-500 hover:text-white transition-all">
                   <i class="fa fa-trash-alt text-[10px]"></i>
                 </button>
               </td>
+            </tr>
+            <tr id="${rowId}" class="hidden md:hidden bg-slate-900/50 border-b border-white/5">
+              <td colspan="5" class="p-5">
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="space-y-1">
+                    <p class="text-[8px] font-black text-slate-500 uppercase">Entry Price</p>
+                    <p class="text-xs font-bold text-white">${item.entry.toFixed(5)}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[8px] font-black text-slate-500 uppercase">Exit Price</p>
+                    <p class="text-xs font-bold text-blue-400">${item.close.toFixed(5)}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[8px] font-black text-slate-500 uppercase">Swap / Rollover</p>
+                    <p class="text-xs font-bold ${item.swap >= 0 ? "text-green-500" : "text-red-500"}">${item.swap}</p>
+                  </div>
+                  <div class="space-y-1">
+                    <p class="text-[8px] font-black text-slate-500 uppercase">Broker Commission</p>
+                    <p class="text-xs font-bold text-slate-300">-${item.komisi}</p>
+                  </div>
+                </div>
+              </td>
             </tr>`;
         } else {
-          // Cash Log (Deposit/Withdraw)
           const isDepo = item.type === "DEPOSIT";
           body.innerHTML += `
             <tr class="bg-blue-500/[0.03] border-b border-white/5">
-              <td class="p-6">
+              <td class="p-4 md:p-6">
                 <div class="flex items-center gap-3">
                   <div class="w-1 h-8 ${isDepo ? "bg-blue-500" : "bg-orange-500"} rounded-full"></div>
                   <div>
@@ -398,16 +420,16 @@
                   </div>
                 </div>
               </td>
-              <td class="p-6 text-center hidden md:table-cell text-[9px] text-slate-600 font-black uppercase tracking-widest italic">Capital Adjustment</td>
+              <td class="p-6 text-center hidden md:table-cell text-[9px] text-slate-600 font-black uppercase italic">Capital Adjustment</td>
               <td class="p-6 text-center hidden lg:table-cell text-[9px] text-slate-600 font-black">---</td>
-              <td class="p-6 text-right">
+              <td class="p-4 md:p-6 text-right">
                 <p class="font-black text-xs md:text-sm ${isDepo ? "text-blue-400" : "text-orange-400"}">
-                  ${isDepo ? "+" : "-"}${parseFloat(item.amount).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+                  ${isDepo ? "+" : "-"}${parseFloat(item.amount).toFixed(2)}
                 </p>
                 <p class="text-[8px] text-slate-600 font-black uppercase">Balance Flux</p>
               </td>
-              <td class="p-6 text-center">
-                <button onclick="window.hapusItem('balance', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500">
+              <td class="p-4 md:p-6 text-center">
+                <button onclick="window.hapusItem('balance', ${item.originalIdx})" class="w-8 h-8 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 text-slate-500 hover:text-white transition-all">
                   <i class="fa fa-trash-alt text-[10px]"></i>
                 </button>
               </td>
@@ -437,13 +459,6 @@
           else db.logs.splice(originalIdx, 1);
           saveData(db);
           window.prosesFilterRiwayat();
-          Swal.fire({
-            ...AlertStyle,
-            icon: "success",
-            title: "Record Purged",
-            timer: 1000,
-            showConfirmButton: false,
-          });
         }
       });
     };
