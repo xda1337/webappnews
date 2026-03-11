@@ -68,14 +68,17 @@
 
   <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mx-1">
     <div
-      class="relative overflow-hidden bg-slate-900 border border-white/5 p-6 rounded-[2rem] group transition-all hover:border-blue-500/30"
+      class="relative overflow-hidden bg-slate-900 border border-white/5 p-5 md:p-6 rounded-[2rem] group transition-all hover:border-blue-500/30"
     >
       <p
         class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2"
       >
         Net Profit/Loss
       </p>
-      <h3 id="sum-profit" class="text-2xl font-mono font-black tabular-nums">
+      <h3
+        id="sum-profit"
+        class="text-xl md:text-2xl font-mono font-black tabular-nums truncate"
+      >
         $0.00
       </h3>
       <div
@@ -86,7 +89,7 @@
     </div>
 
     <div
-      class="bg-slate-900 border border-white/5 p-6 rounded-[2rem] hover:border-blue-500/30 transition-all"
+      class="bg-slate-900 border border-white/5 p-5 md:p-6 rounded-[2rem] hover:border-blue-500/30 transition-all"
     >
       <p
         class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2"
@@ -95,14 +98,14 @@
       </p>
       <h3
         id="sum-depo"
-        class="text-2xl font-mono font-black text-blue-400 tabular-nums"
+        class="text-xl md:text-2xl font-mono font-black text-blue-400 tabular-nums truncate"
       >
         $0.00
       </h3>
     </div>
 
     <div
-      class="bg-slate-900 border border-white/5 p-6 rounded-[2rem] hover:border-red-500/30 transition-all"
+      class="bg-slate-900 border border-white/5 p-5 md:p-6 rounded-[2rem] hover:border-red-500/30 transition-all"
     >
       <p
         class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2"
@@ -111,14 +114,14 @@
       </p>
       <h3
         id="sum-wd"
-        class="text-2xl font-mono font-black text-orange-500 tabular-nums"
+        class="text-xl md:text-2xl font-mono font-black text-orange-500 tabular-nums truncate"
       >
         $0.00
       </h3>
     </div>
 
     <div
-      class="relative overflow-hidden bg-blue-600 p-6 rounded-[2rem] shadow-xl shadow-blue-900/30"
+      class="relative overflow-hidden bg-blue-600 p-5 md:p-6 rounded-[2rem] shadow-xl shadow-blue-900/30"
     >
       <div
         class="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-50"
@@ -130,7 +133,7 @@
       </p>
       <h3
         id="sum-balance"
-        class="relative z-10 text-2xl font-mono font-black text-white tabular-nums"
+        class="relative z-10 text-xl md:text-2xl font-mono font-black text-white tabular-nums truncate"
       >
         $0.00
       </h3>
@@ -140,14 +143,20 @@
   <div
     class="bg-slate-950/50 rounded-[2.5rem] border border-white/5 overflow-hidden shadow-2xl backdrop-blur-2xl mx-1"
   >
-    <div class="overflow-x-auto">
-      <table class="w-full text-left border-collapse">
+    <div class="overflow-x-auto min-w-0">
+      <table class="w-full text-left border-collapse table-fixed md:table-auto">
         <thead>
           <tr
             class="bg-slate-900/50 text-slate-500 text-[10px] uppercase font-black tracking-[0.2em]"
           >
-            <th class="p-6 border-b border-white/5">Asset & Timestamp</th>
-            <th class="p-6 border-b border-white/5 text-center">Execution</th>
+            <th class="p-6 border-b border-white/5 w-1/2 md:w-auto">
+              Asset & Timestamp
+            </th>
+            <th
+              class="p-6 border-b border-white/5 text-center hidden md:table-cell"
+            >
+              Execution
+            </th>
             <th class="p-6 border-b border-white/5 text-right">Settlement</th>
             <th class="p-6 border-b border-white/5 text-center">Actions</th>
           </tr>
@@ -167,19 +176,22 @@
         id="btnPrev"
         class="flex items-center gap-3 text-[10px] font-black uppercase px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl disabled:opacity-20 transition-all text-white active:scale-90"
       >
-        <i class="fa fa-chevron-left text-[8px]"></i> Prev
+        <i class="fa fa-chevron-left text-[8px]"></i>
+        <span class="hidden md:inline">Prev</span>
       </button>
       <span
         id="pageInfo"
-        class="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/40 px-5 py-2.5 rounded-full border border-white/5"
-        >Page 1 / 1</span
+        class="text-[9px] md:text-[10px] font-black text-slate-500 uppercase tracking-widest bg-black/40 px-4 md:px-5 py-2.5 rounded-full border border-white/5"
       >
+        Page 1 / 1
+      </span>
       <button
         onclick="window.changePage(1)"
         id="btnNext"
         class="flex items-center gap-3 text-[10px] font-black uppercase px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-xl disabled:opacity-20 transition-all text-white active:scale-90"
       >
-        Next <i class="fa fa-chevron-right text-[8px]"></i>
+        <span class="hidden md:inline">Next</span>
+        <i class="fa fa-chevron-right text-[8px]"></i>
       </button>
     </div>
   </div>
@@ -194,7 +206,7 @@
     const AlertStyle = {
       background: "#0a0f1d",
       color: "#fff",
-      confirmButtonColor: "#ef4444",
+      confirmButtonColor: "#3b82f6",
       cancelButtonColor: "#1e293b",
       customClass: {
         popup: "rounded-[2rem] border border-slate-800 shadow-2xl",
@@ -214,20 +226,17 @@
 
     window.prosesFilterRiwayat = function () {
       try {
-        const db = getData(); // AMBIL DARI LOCALSTORAGE
+        const db = getData();
         const range = document.getElementById("rangeFilter").value;
 
-        // Reset counters untuk ringkasan (hanya yang ter-filter)
         let tGross = 0,
           tDepo = 0,
           tWD = 0,
           tSwap = 0,
           tKomisi = 0;
-
-        // Variabel untuk kalkulasi SALDO AKHIR (seluruh data di DB)
         let totalCalculatedBalance = 0;
 
-        // 1. Hitung Saldo Akhir Berdasarkan SELURUH Data di DB (Bukan hanya filter)
+        // 1. Calculate Absolute Final Balance
         (db.logs || []).forEach((l) => {
           const amt = parseFloat(l.amount) || 0;
           totalCalculatedBalance += l.type === "DEPOSIT" ? amt : -amt;
@@ -240,7 +249,7 @@
             (parseFloat(t.komisi) || 0);
         });
 
-        // 2. Gabungkan Data untuk tampilan tabel
+        // 2. Prepare Data for Table
         const combined = [
           ...(db.trades || []).map((t, idx) => ({
             ...t,
@@ -273,7 +282,7 @@
           return true;
         };
 
-        // Filter data dan hitung stats box (Profit, Inbound, Outbound)
+        // 3. Filter and Calculate Stats Box
         filteredData = combined.filter((item) => {
           const match = isMatch(item.date);
           if (match) {
@@ -296,20 +305,15 @@
 
         const displayProfit = tGross + tSwap - tKomisi;
 
-        // Update Stats UI
+        // Update UI
         const profEl = document.getElementById("sum-profit");
-        profEl.innerText =
-          (displayProfit >= 0 ? "+" : "") +
-          "$" +
-          displayProfit.toLocaleString("en-US", { minimumFractionDigits: 2 });
-        profEl.className = `text-2xl font-mono font-black tabular-nums ${displayProfit >= 0 ? "text-green-400" : "text-red-500"}`;
+        profEl.innerText = `${displayProfit >= 0 ? "+" : ""}$${displayProfit.toLocaleString("en-US", { minimumFractionDigits: 2 })}`;
+        profEl.className = `text-xl md:text-2xl font-mono font-black tabular-nums truncate ${displayProfit >= 0 ? "text-green-400" : "text-red-500"}`;
 
         document.getElementById("sum-depo").innerText =
           "$" + tDepo.toLocaleString("en-US", { minimumFractionDigits: 2 });
         document.getElementById("sum-wd").innerText =
           "-$" + tWD.toLocaleString("en-US", { minimumFractionDigits: 2 });
-
-        // Final Balance sekarang mengambil hasil hitung ulang, bukan db.profile.balance yang statis
         document.getElementById("sum-balance").innerText =
           "$" +
           totalCalculatedBalance.toLocaleString("en-US", {
@@ -351,20 +355,40 @@
               (parseFloat(item.komisi) || 0);
             body.innerHTML += `
               <tr class="hover:bg-white/[0.02] transition-colors group">
-                <td class="p-6"><p class="text-[9px] text-slate-600 font-black mb-1">${d}</p><p class="text-white font-black text-sm uppercase">${item.pair}</p></td>
-                <td class="p-6 text-center"><span class="px-3 py-1 rounded-md text-[9px] font-black uppercase ${item.type === "BUY" ? "bg-green-500/10 text-green-500 border border-green-500/20" : "bg-red-500/10 text-red-500 border border-red-500/20"}">${item.type} ${item.lot.toFixed(2)}</span></td>
-                <td class="p-6 text-right font-black text-sm ${net >= 0 ? "text-green-400" : "text-red-500"}">${net >= 0 ? "+" : ""}${net.toFixed(2)}</td>
-                <td class="p-6 text-center"><button onclick="window.hapusItem('trade', ${item.originalIdx})" class="w-9 h-9 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500 active:scale-90"><i class="fa fa-trash-alt text-[11px]"></i></button></td>
+                <td class="p-6">
+                  <p class="text-[9px] text-slate-600 font-black mb-1">${d}</p>
+                  <p class="text-white font-black text-xs md:text-sm uppercase truncate">${item.pair}</p>
+                </td>
+                <td class="p-6 text-center hidden md:table-cell">
+                  <span class="px-3 py-1 rounded-md text-[9px] font-black uppercase ${item.type === "BUY" ? "bg-green-500/10 text-green-500 border border-green-500/20" : "bg-red-500/10 text-red-500 border border-red-500/20"}">${item.type} ${item.lot.toFixed(2)}</span>
+                </td>
+                <td class="p-6 text-right font-black text-xs md:text-sm ${net >= 0 ? "text-green-400" : "text-red-500"}">
+                  ${net >= 0 ? "+" : ""}${net.toFixed(2)}
+                </td>
+                <td class="p-6 text-center">
+                  <button onclick="window.hapusItem('trade', ${item.originalIdx})" class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500 active:scale-90">
+                    <i class="fa fa-trash-alt text-[10px]"></i>
+                  </button>
+                </td>
               </tr>`;
           } else {
             const amt = parseFloat(item.amount) || 0;
             const isDepo = item.type === "DEPOSIT";
             body.innerHTML += `
               <tr class="bg-blue-500/[0.03] group">
-                <td class="p-6"><p class="text-[9px] text-slate-600 font-black mb-1">${d}</p><p class="text-blue-400 font-black text-sm uppercase italic">CASH ${item.type}</p></td>
-                <td class="p-6 text-center text-[9px] text-slate-500 font-black uppercase tracking-widest">Adjustment</td>
-                <td class="p-6 text-right font-black text-sm ${isDepo ? "text-blue-400" : "text-orange-400"}">${isDepo ? "+" : "-"}${amt.toFixed(2)}</td>
-                <td class="p-6 text-center"><button onclick="window.hapusItem('balance', ${item.originalIdx})" class="w-9 h-9 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500 active:scale-90"><i class="fa fa-trash-alt text-[11px]"></i></button></td>
+                <td class="p-6">
+                  <p class="text-[9px] text-slate-600 font-black mb-1">${d}</p>
+                  <p class="text-blue-400 font-black text-xs md:text-sm uppercase italic truncate">CASH ${item.type}</p>
+                </td>
+                <td class="p-6 text-center text-[9px] text-slate-500 font-black uppercase tracking-widest hidden md:table-cell">Adjustment</td>
+                <td class="p-6 text-right font-black text-xs md:text-sm ${isDepo ? "text-blue-400" : "text-orange-400"}">
+                  ${isDepo ? "+" : "-"}${amt.toFixed(2)}
+                </td>
+                <td class="p-6 text-center">
+                  <button onclick="window.hapusItem('balance', ${item.originalIdx})" class="w-8 h-8 md:w-9 md:h-9 rounded-xl bg-slate-900 border border-white/5 hover:bg-red-500 hover:text-white transition-all text-slate-500 active:scale-90">
+                    <i class="fa fa-trash-alt text-[10px]"></i>
+                  </button>
+                </td>
               </tr>`;
           }
         });
@@ -387,30 +411,8 @@
       }).then((result) => {
         if (result.isConfirmed) {
           const db = getData();
-          if (type === "trade") {
-            db.trades.splice(originalIdx, 1);
-          } else {
-            db.logs.splice(originalIdx, 1);
-          }
-
-          // Opsional: Sinkronkan db.profile.balance agar data di storage konsisten
-          let syncBal = 0;
-          db.logs.forEach(
-            (l) =>
-              (syncBal +=
-                l.type === "DEPOSIT"
-                  ? parseFloat(l.amount)
-                  : -parseFloat(l.amount)),
-          );
-          db.trades.forEach((t) => {
-            const diff =
-              t.type === "BUY" ? t.close - t.entry : t.entry - t.close;
-            syncBal +=
-              diff * t.lot * 100 +
-              (parseFloat(t.swap) || 0) -
-              (parseFloat(t.komisi) || 0);
-          });
-          db.profile.balance = syncBal;
+          if (type === "trade") db.trades.splice(originalIdx, 1);
+          else db.logs.splice(originalIdx, 1);
 
           saveData(db);
           window.prosesFilterRiwayat();
